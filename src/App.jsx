@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { supabase } from "./lib/supabase";
 
 
@@ -51,6 +52,10 @@ function mapSupabasePost(row) {
   };
 }
 export default function App() {
+const isAdminPage = window.location.pathname === "/admin";
+const path = window.location.pathname;
+const isPostPage = path.startsWith("/post/");
+const postId = isPostPage ? path.split("/post/")[1] : null;
 const [session, setSession] = useState(null);
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
@@ -110,12 +115,13 @@ async function signOut() {
 
  
   const filteredPosts = useMemo(() => {
-    const q = query.toLowerCase();
+ const q = query.toLowerCase();
     return posts
       .filter((post) => filter === "All" || post.type === filter)
       .filter((post) => [post.title, post.type, post.body, post.date].some((field) => String(field).toLowerCase().includes(q)))
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [posts, query, filter]);
+const selectedPost = posts.find((post) => String(post.id) === String(postId));
 
   function startNewPost() {
     setDraft(emptyPost());
@@ -189,18 +195,100 @@ async function savePost() {
 
   setPosts(posts.filter((post) => post.id !== id));
 }
-  function handleImageUpload(event) {
+ 
+
+ async function handleImageUpload(event) {
   const file = event.target.files?.[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = () =>
-    setDraft((prev) => ({ ...prev, image: reader.result }));
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${crypto.randomUUID()}.${fileExt}`;
+  const filePath = fileName;
 
-  reader.readAsDataURL(file);
+  const { error } = await supabase.storage
+    .from("blog-images")
+    .upload(filePath, file);
+
+  if (error) {
+    console.error("Error uploading image:", error);
+    alert("Could not upload image.");
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("blog-images")
+    .getPublicUrl(filePath);
+
+  setDraft((prev) => ({
+    ...prev,
+    image: data.publicUrl,
+  }));
 }
 
-  
+ if (isPostPage) {
+  if (!selectedPost) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.card}>
+          <h1>Post not found</h1>
+          <a href="/">← Back to all posts</a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styles.page}>
+      <main style={{ maxWidth: "760px", margin: "0 auto" }}>
+        <a href="/" style={{ color: "#52525b" }}>← Back to all posts</a>
+
+        <article style={{ ...styles.card, marginTop: "24px" }}>
+          {selectedPost.image && (
+            <img
+              src={selectedPost.image}
+              alt={selectedPost.title}
+              style={styles.postImage}
+            />
+          )}
+
+          <div style={styles.cardBody}>
+            <div style={styles.meta}>
+              {selectedPost.type} · {selectedPost.date}
+            </div>
+
+            <h1 style={styles.title}>{selectedPost.title}</h1>
+
+ <div style={styles.markdownBody}>
+  <ReactMarkdown
+    components={{
+      h1: ({ children }) => (
+        <h1 style={styles.markdownH1}>{children}</h1>
+      ),
+      h2: ({ children }) => (
+        <h2 style={styles.markdownH2}>{children}</h2>
+      ),
+      ul: ({ children }) => (
+        <ul style={styles.markdownList}>{children}</ul>
+      ),
+      li: ({ children }) => (
+        <li style={styles.markdownListItem}>{children}</li>
+      ),
+      blockquote: ({ children }) => (
+        <blockquote style={styles.markdownQuote}>
+          {children}
+        </blockquote>
+      ),
+    }}
+  >
+    {selectedPost?.body || ""}
+  </ReactMarkdown>
+</div>
+          </div>
+        </article>
+      </main>
+    </div>
+  );
+} 
   return (
     <div style={styles.page}>
       <header style={styles.hero}>
@@ -209,7 +297,8 @@ async function savePost() {
           <p style={styles.subtitle}>A personal place for op-eds, cafe reviews, reading notes, lists, opinions, and everything else interesting.</p>
         </div>
   <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-  {session ? (
+ {isAdminPage && (
+  session ? (
     <>
       <button style={styles.primaryButton} onClick={startNewPost}>
         + New post
@@ -241,7 +330,8 @@ async function savePost() {
         Sign in
       </button>
     </>
-  )}
+  )
+)}
 </div>
       </header>
 
@@ -260,8 +350,22 @@ async function savePost() {
               <div style={styles.cardBody}>
                 <div style={styles.meta}>{post.type} · {post.date} {post.rating > 0 ? `· ${post.rating}/5` : ""}</div>
                 <h2 style={styles.postTitle}>{post.title}</h2>
-                <p style={styles.bodyText}>{post.body}</p>
- {session && (
+  <div style={styles.markdownBody}>
+ <ReactMarkdown>
+{post.body || ""}
+</ReactMarkdown>
+</div>
+<a
+  href={`/post/${post.id}`}
+  style={{
+    color: "#18181b",
+    fontWeight: "bold",
+    textDecoration: "none",
+  }}
+>
+  Read post →
+</a>
+{isAdminPage && session && (
   <div style={styles.buttonRow}>
     <button
       style={styles.secondaryButton}
@@ -345,6 +449,38 @@ async function savePost() {
 }
 
 const styles = {
+markdownBody: {
+  lineHeight: 1.8,
+  fontSize: "18px",
+  color: "#3f3f46",
+},
+markdownH1: {
+  fontSize: "32px",
+  margin: "24px 0 12px",
+},
+
+markdownH2: {
+  fontSize: "24px",
+  margin: "22px 0 10px",
+},
+
+markdownList: {
+  paddingLeft: "24px",
+  margin: "12px 0",
+  listStyleType: "disc",
+},
+
+markdownListItem: {
+  marginBottom: "6px",
+},
+
+markdownQuote: {
+  borderLeft: "4px solid #d4d4d8",
+  paddingLeft: "16px",
+  color: "#52525b",
+  fontStyle: "italic",
+  margin: "18px 0",
+},
 loginPage: {
   minHeight: "100vh",
   background: "#f4f4f5",
