@@ -59,6 +59,37 @@ const postId = isPostPage ? path.split("/post/")[1] : null;
 const [session, setSession] = useState(null);
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
+async function saveSiteSettings() {
+  if (!settingsDraft) return;
+
+  setSavingSettings(true);
+
+  const { data, error } = await supabase
+    .from("site_config")
+    .update({
+      site_title: settingsDraft.site_title,
+      site_tagline: settingsDraft.site_tagline,
+      homepage_intro: settingsDraft.homepage_intro,
+      about_page: settingsDraft.about_page,
+      footer_text: settingsDraft.footer_text,
+    })
+    .eq("id", settingsDraft.id)
+    .select()
+    .single();
+
+  setSavingSettings(false);
+
+  if (error) {
+    console.error("Error saving site settings:", error);
+    alert("Could not save site settings.");
+    return;
+  }
+
+  setSiteConfig(data);
+  setSettingsDraft(data);
+
+  alert("Site settings saved.");
+}
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
     setSession(data.session);
@@ -103,15 +134,40 @@ async function signOut() {
 
     setPosts(data.map(mapSupabasePost));
   }
+async function loadSiteConfig() {
+  const { data: configData, error: configError } = await supabase
+    .from("site_config")
+    .select("*")
+    .limit(1);
 
+  console.log("SITE CONFIG:", configData);
+  console.log("SITE CONFIG ERROR:", configError);
+
+ if (!configError && configData && configData.length > 0) {
+  setSiteConfig(configData[0]);
+  setSettingsDraft(configData[0]);
+}
+}
   loadPosts();
+  loadSiteConfig();
 }, []);
   const [posts, setPosts] = useState([]);
+const [siteConfig, setSiteConfig] = useState({
+  site_title: "Random Things",
+  site_tagline: "",
+  homepage_intro: "",
+  about_page: "",
+  footer_text: "",
+});
 
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(emptyPost());
+const [settingsDraft, setSettingsDraft] = useState(null);
+const [savingSettings, setSavingSettings] = useState(false);
+
+const [query, setQuery] = useState("");
+const [filter, setFilter] = useState("All");
+const [editing, setEditing] = useState(false);
+const [draft, setDraft] = useState(emptyPost());
+
 
  
   const filteredPosts = useMemo(() => {
@@ -293,8 +349,13 @@ async function savePost() {
     <div style={styles.page}>
       <header style={styles.hero}>
         <div>
-          <h1 style={styles.title}>Random Things</h1>
-          <p style={styles.subtitle}>A personal place for op-eds, cafe reviews, reading notes, lists, opinions, and everything else interesting.</p>
+          <h1 style={styles.title}>{siteConfig.site_title}</h1>
+          <p style={styles.subtitle}>{siteConfig.site_tagline}</p>
+{siteConfig.homepage_intro && (
+  <p style={{ marginTop: "12px", color: "#555", fontSize: "16px" }}>
+    {siteConfig.homepage_intro}
+  </p>
+)}
         </div>
   <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
  {isAdminPage && (
@@ -390,6 +451,64 @@ async function savePost() {
         </section>
 
         <aside style={styles.sidebar}>
+{isAdminPage && session && settingsDraft && (
+  <div style={styles.card}>
+    <h3>Site Settings</h3>
+
+    <input
+      style={styles.input}
+      value={settingsDraft.site_title || ""}
+      onChange={(e) =>
+        setSettingsDraft({ ...settingsDraft, site_title: e.target.value })
+      }
+      placeholder="Site title"
+    />
+
+    <textarea
+      style={styles.textarea}
+      value={settingsDraft.site_tagline || ""}
+      onChange={(e) =>
+        setSettingsDraft({ ...settingsDraft, site_tagline: e.target.value })
+      }
+      placeholder="Site tagline"
+    />
+
+    <textarea
+      style={styles.textarea}
+      value={settingsDraft.homepage_intro || ""}
+      onChange={(e) =>
+        setSettingsDraft({ ...settingsDraft, homepage_intro: e.target.value })
+      }
+      placeholder="Homepage intro"
+    />
+
+    <textarea
+      style={styles.textarea}
+      value={settingsDraft.about_page || ""}
+      onChange={(e) =>
+        setSettingsDraft({ ...settingsDraft, about_page: e.target.value })
+      }
+      placeholder="About page"
+    />
+
+    <input
+      style={styles.input}
+      value={settingsDraft.footer_text || ""}
+      onChange={(e) =>
+        setSettingsDraft({ ...settingsDraft, footer_text: e.target.value })
+      }
+      placeholder="Footer text"
+    />
+
+    <button
+      style={styles.primaryButton}
+      onClick={saveSiteSettings}
+      disabled={savingSettings}
+    >
+      {savingSettings ? "Saving..." : "Save site settings"}
+    </button>
+  </div>
+)}
           <div style={styles.card}>
             <h3>Stats</h3>
             <p><strong>{posts.length}</strong> posts</p>
