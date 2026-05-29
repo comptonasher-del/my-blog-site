@@ -1,4 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { supabase } from "./lib/supabase";
+
+
 
 const STORAGE_KEY = "random-things-blog-v3";
 
@@ -36,26 +39,76 @@ function emptyPost() {
     body: "",
   };
 }
-
+function mapSupabasePost(row) {
+  return {
+    id: row.id,
+    title: row.title || "Untitled",
+    body: row.body || "",
+    type: row.category || "Journal",
+    rating: 0,
+    date: new Date().toISOString().slice(0, 10),
+    image: row.image_url || "",
+  };
+}
 export default function App() {
-  const [posts, setPosts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : starterPosts;
-    } catch {
-      return starterPosts;
-    }
+const [session, setSession] = useState(null);
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session);
   });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setSession(session);
+  });
+ return () => subscription.unsubscribe();
+}, []);
+
+
+async function signIn() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert("Login failed.");
+    console.error(error);
+  }
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+}
+ 
+ useEffect(() => {
+  async function loadPosts() {
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Error loading posts:", error);
+      return;
+    }
+
+    setPosts(data.map(mapSupabasePost));
+  }
+
+  loadPosts();
+}, []);
+  const [posts, setPosts] = useState([]);
 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(emptyPost());
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-  }, [posts]);
-
+ 
   const filteredPosts = useMemo(() => {
     const q = query.toLowerCase();
     return posts
@@ -73,43 +126,123 @@ export default function App() {
     setDraft({ ...post });
     setEditing(true);
   }
+async function savePost() {
+  if (!draft.title.trim() && !draft.body.trim()) return;
 
-  function savePost() {
-    if (!draft.title.trim() && !draft.body.trim()) return;
-    const finishedPost = { ...draft, title: draft.title.trim() || "Untitled" };
-    const alreadyExists = posts.some((post) => post.id === draft.id);
+  const alreadyExists = posts.some((post) => post.id === draft.id);
 
-    if (alreadyExists) {
-      setPosts(posts.map((post) => (post.id === draft.id ? finishedPost : post)));
-    } else {
-      setPosts([finishedPost, ...posts]);
+  if (alreadyExists) {
+    const { data, error } = await supabase
+      .from("posts")
+      .update({
+        title: draft.title.trim() || "Untitled",
+        body: draft.body || "",
+        category: draft.type || "Journal",
+        image_url: draft.image || "",
+      })
+      .eq("id", draft.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating post:", error);
+      alert("Could not update post.");
+      return;
     }
 
-    setEditing(false);
-    setDraft(emptyPost());
+    setPosts(posts.map((post) => post.id === draft.id ? mapSupabasePost(data) : post));
+  } else {
+    const { data, error } = await supabase
+      .from("posts")
+      .insert({
+        title: draft.title.trim() || "Untitled",
+        body: draft.body || "",
+        category: draft.type || "Journal",
+        image_url: draft.image || "",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error saving post:", error);
+      alert("Could not save post.");
+      return;
+    }
+
+    setPosts([mapSupabasePost(data), ...posts]);
   }
 
-  function deletePost(id) {
-    setPosts(posts.filter((post) => post.id !== id));
+  setEditing(false);
+  setDraft(emptyPost());
+}
+  async function deletePost(id) {
+  const { error } = await supabase
+    .from("posts")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting post:", error);
+    alert("Could not delete post.");
+    return;
   }
 
+  setPosts(posts.filter((post) => post.id !== id));
+}
   function handleImageUpload(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => setDraft((prev) => ({ ...prev, image: reader.result }));
-    reader.readAsDataURL(file);
-  }
+  const reader = new FileReader();
+  reader.onload = () =>
+    setDraft((prev) => ({ ...prev, image: reader.result }));
 
+  reader.readAsDataURL(file);
+}
+
+  
   return (
     <div style={styles.page}>
       <header style={styles.hero}>
         <div>
           <h1 style={styles.title}>Random Things</h1>
-          <p style={styles.subtitle}>A personal place for op-eds, cafe reviews, reading notes, lists, opinions, and whatever else you want to remember.</p>
+          <p style={styles.subtitle}>A personal place for op-eds, cafe reviews, reading notes, lists, opinions, and everything else interesting.</p>
         </div>
-        <button style={styles.primaryButton} onClick={startNewPost}>+ New post</button>
+  <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+  {session ? (
+    <>
+      <button style={styles.primaryButton} onClick={startNewPost}>
+        + New post
+      </button>
+
+      <button style={styles.secondaryButton} onClick={signOut}>
+        Sign out
+      </button>
+    </>
+  ) : (
+    <>
+      <input
+        style={styles.input}
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <input
+        style={styles.input}
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button style={styles.primaryButton} onClick={signIn}>
+        Sign in
+      </button>
+    </>
+  )}
+</div>
       </header>
 
       <section style={styles.controls}>
@@ -128,10 +261,23 @@ export default function App() {
                 <div style={styles.meta}>{post.type} · {post.date} {post.rating > 0 ? `· ${post.rating}/5` : ""}</div>
                 <h2 style={styles.postTitle}>{post.title}</h2>
                 <p style={styles.bodyText}>{post.body}</p>
-                <div style={styles.buttonRow}>
-                  <button style={styles.secondaryButton} onClick={() => startEdit(post)}>Edit</button>
-                  <button style={styles.ghostButton} onClick={() => deletePost(post.id)}>Delete</button>
-                </div>
+ {session && (
+  <div style={styles.buttonRow}>
+    <button
+      style={styles.secondaryButton}
+      onClick={() => startEdit(post)}
+    >
+      Edit
+    </button>
+
+    <button
+      style={styles.ghostButton}
+      onClick={() => deletePost(post.id)}
+    >
+      Delete
+    </button>
+  </div>
+)}
               </div>
             </article>
           ))}
@@ -195,16 +341,49 @@ export default function App() {
       )}
     </div>
   );
+
 }
 
 const styles = {
+loginPage: {
+  minHeight: "100vh",
+  background: "#f4f4f5",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "24px",
+},
+
+loginCard: {
+  background: "white",
+  borderRadius: "28px",
+  padding: "36px",
+  width: "100%",
+  maxWidth: "420px",
+  boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+  display: "grid",
+  gap: "16px",
+},
+
+loginTitle: {
+  fontSize: "40px",
+  margin: "0",
+  letterSpacing: "-0.04em",
+},
+
+loginSubtitle: {
+  color: "#52525b",
+  fontSize: "16px",
+  lineHeight: 1.5,
+  margin: "0 0 8px",
+},
   page: {
     minHeight: "100vh",
     background: "#f4f4f5",
     color: "#18181b",
     fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     padding: "32px",
-  },
+},
   hero: {
     maxWidth: "1100px",
     margin: "0 auto 24px",
@@ -217,7 +396,7 @@ const styles = {
     gap: "24px",
     alignItems: "center",
     flexWrap: "wrap",
-  },
+},
   title: { fontSize: "48px", margin: "0 0 12px", letterSpacing: "-0.04em" },
   subtitle: { fontSize: "18px", color: "#52525b", maxWidth: "720px", margin: 0, lineHeight: 1.6 },
  controls: {
