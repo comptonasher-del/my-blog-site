@@ -196,8 +196,6 @@ const [draft, setDraft] = useState(emptyPost());
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [posts, query, filter]);
 const selectedPost = posts.find((post) => String(post.id) === String(postId));
-const featuredPost = filteredPosts[0];
-const remainingPosts = filteredPosts.slice(1);
 
   function startNewPost() {
     setDraft(emptyPost());
@@ -416,146 +414,61 @@ async function savePost() {
 </div>
       </header>
 
-   
+      <section style={styles.controls}>
+        <input style={styles.input} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search posts..." />
+        <select style={styles.select} value={filter} onChange={(e) => setFilter(e.target.value)}>
+          {postTypes.map((type) => <option key={type}>{type}</option>)}
+        </select>
+      </section>
+
       <main style={styles.layout}>
-      <section style={styles.posts}>
-  {featuredPost && (
-<article style={styles.featuredCard}>
-    {featuredPost.image && (
-      <img src={featuredPost.image} alt="Post" style={styles.featuredImage} />
-    )}
-
-    <div style={styles.cardBody}>
-      <div style={styles.meta}>
-        {featuredPost.type} · {featuredPost.date}
-      </div>
-
-      <h2 style={styles.featuredTitle}>{featuredPost.title}</h2>
-
-      <p style={styles.bodyText}>
-        {(featuredPost.body || "").slice(0, 220)}...
-      </p>
-
-      <a href={`/post/${featuredPost.id}`} style={styles.readLink}>
-        Read featured →
+        <section style={styles.posts}>
+          {filteredPosts.map((post) => (
+            <article key={post.id} style={styles.card}>
+              {post.image && <img src={post.image} alt="Post" style={styles.postImage} />}
+              <div style={styles.cardBody}>
+                <div style={styles.meta}>{post.type} · {post.date} {post.rating > 0 ? `· ${post.rating}/5` : ""}</div>
+                <h2 style={styles.postTitle}>{post.title}</h2>
+  <div style={styles.markdownBody}>
+ <ReactMarkdown>
+{post.body || ""}
+</ReactMarkdown>
+</div>
+<a
+  href={`/post/${post.id}`}
+  style={{
+    color: "#18181b",
+    fontWeight: "bold",
+    textDecoration: "none",
+  }}
+>
+  Read post →
+</a>
 {isAdminPage && session && (
   <div style={styles.buttonRow}>
     <button
       style={styles.secondaryButton}
-     onClick={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  startEdit(featuredPost);
-}}
+      onClick={() => startEdit(post)}
     >
       Edit
     </button>
 
     <button
       style={styles.ghostButton}
-      onClick={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  deletePost(featuredPost.id);
-}}
+      onClick={() => deletePost(post.id)}
     >
       Delete
     </button>
   </div>
 )}
-      </a>
-{isAdminPage && session && (
-  <div style={styles.buttonRow}>
-    <button
-      style={styles.secondaryButton}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        startEdit(featuredPost);
-      }}
-    >
-      Edit
-    </button>
+              </div>
+            </article>
+          ))}
 
-    <button
-      style={styles.ghostButton}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        deletePost(featuredPost.id);
-      }}
-    >
-      Delete
-    </button>
-  </div>
-)}
-    </div>
-  </article>
-)}
+          {filteredPosts.length === 0 && <div style={styles.card}>No posts found.</div>}
+        </section>
 
-{remainingPosts.length > 0 && (
-  <h2 style={styles.sectionHeading}>Latest Articles</h2>
-)}
-
-{remainingPosts.map((post) => (
-  <article key={post.id} style={styles.card}>
-    {post.image && (
-      <img src={post.image} alt="Post" style={styles.postImage} />
-    )}
-
-    <div style={styles.cardBody}>
-      <div style={styles.meta}>
-        {post.type} · {post.date}
-      </div>
-
-      <h2 style={styles.postTitle}>{post.title}</h2>
-
-      <p style={styles.bodyText}>
-        {(post.body || "").slice(0, 150)}...
-      </p>
-
-      <a href={`/post/${post.id}`} style={styles.readLink}>
-        Read article →
-      </a>
-{isAdminPage && session && (
-  <div style={styles.buttonRow}>
-    <button
-      style={styles.secondaryButton}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        startEdit(post);
-      }}
-    >
-      Edit
-    </button>
-
-    <button
-      style={styles.ghostButton}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        deletePost(post.id);
-      }}
-    >
-      Delete
-    </button>
-  </div>
-)}
-    </div>
-  </article>
-))}
-
-{filteredPosts.length === 0 && (
-  <div style={styles.card}>No posts found.</div>
-)}
-</section>
-
-       
- <aside style={styles.sidebar}>
-
-
-
+        <aside style={styles.sidebar}>
 {isAdminPage && session && settingsDraft && (
   <div style={styles.card}>
     <h3>Site Settings</h3>
@@ -673,9 +586,6 @@ async function savePost() {
     </button>
   </div>
 )}
-
-{isAdminPage && session && (
-<>
           <div style={styles.card}>
             <h3>Stats</h3>
             <p><strong>{posts.length}</strong> posts</p>
@@ -689,10 +599,8 @@ async function savePost() {
             <p>Movie reviews in one paragraph</p>
             <p>Random thoughts you do not want to lose</p>
           </div>
-	</>
-	)}
-       </aside>
-  </main>
+        </aside>
+      </main>
 
       {editing && (
         <div style={styles.modalBackdrop}>
@@ -737,40 +645,6 @@ async function savePost() {
 }
 
 const styles = {
-featuredTitle: {
-  fontSize: "52px",
-  fontWeight: "800",
-  lineHeight: 1.05,
-  letterSpacing: "-0.04em",
-  margin: "12px 0 16px",
-  color: "#18181b",
-},
-featuredDeck: {
-  fontSize: "22px",
-  lineHeight: 1.5,
-  color: "#52525b",
-  marginBottom: "24px",
-},
-featuredCard: {
-  gridColumn: "1 / -1",
-  display: "grid",
-  gridTemplateColumns: "1.1fr 0.9fr",
-  gap: "32px",
-  alignItems: "center",
-  background: "#fffaf3",
-  border: "1px solid #eadfce",
-  borderRadius: "28px",
-  padding: "32px",
-  boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-},
-
-featuredImage: {
-  width: "100%",
-  height: "260px",
-  objectFit: "cover",
-  display: "block",
-  borderRadius: "18px",
-},
 markdownBody: {
   lineHeight: 1.8,
   fontSize: "18px",
@@ -838,75 +712,55 @@ loginSubtitle: {
  
 page: {
   minHeight: "100vh",
-  background: "#f7f4ef",
-  color: "#1f2933",
-  fontFamily: "Inter, system-ui, sans-serif",
-  padding: "40px 24px",
+  background: "#f4f4f5",
+  color: "#18181b",
+    fontFamily: "Inter, system-ui, sans-serif",
+    padding: "32px",
 },
-
-hero: {
-  maxWidth: "1120px",
-  margin: "0 auto 20px",
-  background: "#fffaf3",
-  border: "1px solid #eadfce",
-  borderRadius: "0px",
-  padding: "20px 32px",
-  boxShadow: "0 24px 70px rgba(31, 41, 51, 0.08)",
+  hero: {
+    maxWidth: "1100px",
+    margin: "0 auto 24px",
+background: "white",
+borderRadius: "28" ,
+    padding: "32px",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "24px",
+    alignItems: "center",
+    flexWrap: "wrap",
 },
-
-title: {
-  fontSize: "64px",
-  lineHeight: 0.95,
-  margin: "0 0 20px",
-  letterSpacing: "-0.06em",
-  fontWeight: 800,
+  title: { fontSize: "48px", margin: "0 0 12px", letterSpacing: "-0.04em" },
+  subtitle: {
+  fontSize: "18px",
+  color: "#52525b", maxWidth: "720px", margin: 0, lineHeight: 1.6 },
+ controls: {
+  maxWidth: "1100px",
+  margin: "0 auto 24px",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: "12px",
 },
-
-subtitle: {
-  fontSize: "20px",
-  color: "#6b6258",
-  maxWidth: "760px",
-  margin: 0,
-  lineHeight: 1.7,
-},
-
 
 layout: {
-  maxWidth: "1120px",
+  maxWidth: "1100px",
   margin: "0 auto",
-  display: "block",
-},
-  posts: {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-  gap: "28px",
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: "24px",
+  alignItems: "start",
 },
+  posts: { display: "grid", gap: "18px" },
   sidebar: { display: "grid", gap: "18px" },
-card: {
-  background: "#fffaf3",
-  border: "1px solid #eadfce",
-  borderRadius: "28px",
-  padding: "32px",
-  boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-  overflow: "hidden",
-},
+  card: { 
+background: "white",
+borderRadius: "28px", 
+padding: "24px", boxShadow: "0 8px 30px rgba(0,0,0,0.06)", overflow: "hidden" },
   cardBody: { padding: "24px" },
- postImage: {
-  width: "100%",
-  height: "220px",
-  objectFit: "cover",
-  display: "block",
-},
+  postImage: { width: "100%", height: "280px", objectFit: "cover", display: "block" },
   previewImage: { width: "100%", maxHeight: "260px", objectFit: "cover", borderRadius: "18px" },
   meta: { color: "#71717a", fontSize: "14px", marginBottom: "10px" },
-postTitle: {
-  margin: "12 px 0",
-  fontSize: "34px",
-  fontWeight: "800",
-  letterSpacing: "-0.03em",
-  lineHeight: 1.1,
-  color: "#1b2538",
-},
+  postTitle: { margin: "0 0 12px", fontSize: "28px", letterSpacing: "-0.02em" },
   bodyText: { whiteSpace: "pre-wrap", lineHeight: 1.7, color: "#3f3f46" },
   input: { width: "100%", boxSizing: "border-box", border: "1px solid #d4d4d8", borderRadius: "16px", padding: "14px 16px", fontSize: "16px" },
   select: { width: "100%", boxSizing: "border-box", border: "1px solid #d4d4d8", borderRadius: "16px", padding: "14px 16px", fontSize: "16px", background: "white" },
