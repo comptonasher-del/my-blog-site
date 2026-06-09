@@ -89,6 +89,7 @@ export default function App() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(emptyPost());
 
+  const [activeCategory, setActiveCategory] = useState("Home");
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
@@ -111,13 +112,21 @@ export default function App() {
     loadSiteConfig();
   }, []);
 
-  const sortedPosts = useMemo(() => {
-    return [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [posts]);
+const visiblePosts = useMemo(() => {
+  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (activeCategory === "Home") return sorted;
+  if (activeCategory === "Essays") return sorted.filter((post) => post.type === "Op-Ed");
+  if (activeCategory === "Book Reviews") return sorted.filter((post) => post.type === "Book Review");
+  if (activeCategory === "Journal") return sorted.filter((post) => post.type === "Journal");
+
+  return sorted;
+}, [posts, activeCategory]);
+
+const featuredPost = visiblePosts[0];
+const remainingPosts = visiblePosts.slice(1);
 
   const selectedPost = posts.find((post) => String(post.id) === String(postId));
-  const featuredPost = sortedPosts[0];
-  const remainingPosts = sortedPosts.slice(1);
 
   async function loadPosts() {
     setLoadingPosts(true);
@@ -356,9 +365,27 @@ export default function App() {
     <div style={styles.page}>
       <header style={styles.hero}>
         <div>
-          <h1 style={styles.title}>{siteConfig.site_title}</h1>
-          <p style={styles.subtitle}>{siteConfig.site_tagline}</p>
+         <div style={styles.masthead}>
+  <h1 style={styles.title}>{siteConfig.site_title}</h1>
+  <p style={styles.subtitle}>{siteConfig.site_tagline}</p>
 
+ <nav style={styles.nav}>
+  {["Home", "Journal", "Essays", "Book Reviews"].map((item) => (
+    <button
+      key={item}
+      style={{
+        ...styles.navLink,
+        ...(activeCategory === item ? styles.navLinkActive : {}),
+      }}
+      onClick={() => setActiveCategory(item)}
+    >
+      {item}
+    </button>
+  ))}
+
+  <a href="/about" style={styles.navLink}>About</a>
+</nav>
+</div>
           {siteConfig.homepage_intro && (
             <p style={styles.homepageIntro}>{siteConfig.homepage_intro}</p>
           )}
@@ -428,7 +455,7 @@ export default function App() {
             />
           ))}
 
-          {sortedPosts.length === 0 && (
+          {visiblePosts.length === 0 && (
             <div style={styles.card}>No posts found.</div>
           )}
         </section>
@@ -881,6 +908,39 @@ const styles = {
     color: "#52525b",
     marginBottom: "24px",
   },
+masthead: {
+  textAlign: "center",
+},
+
+nav: {
+  display: "flex",
+  justifyContent: "center",
+  gap: "24px",
+  marginTop: "20px",
+  paddingTop: "16px",
+  borderTop: "1px solid #eadfce",
+  fontSize: "14px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+},
+
+navLink: {
+  color: "#1f2933",
+  textDecoration: "none",
+  background: "transparent",
+  border: 0,
+  cursor: "pointer",
+  font: "inherit",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+},
+
+navLinkActive: {
+  borderBottom: "2px solid #1f2933",
+  paddingBottom: "4px",
+},
 
   sectionHeading: {
     gridColumn: "1 / -1",
