@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "./lib/supabase";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 const POST_TYPES = [
   "Op-Ed",
@@ -14,7 +16,6 @@ const POST_TYPES = [
 
 const DEFAULT_SITE_CONFIG = {
   site_title: "From One to the Next",
-  site_tagline: "History, politics, culture, religion and everything else interesting. Here.",
   homepage_intro: "",
   about_page: "",
   footer_text: "",
@@ -34,6 +35,7 @@ function emptyPost() {
     date: new Date().toISOString().slice(0, 10),
     image: "",
     body: "",
+    excerpt: "", 
   };
 }
 
@@ -42,6 +44,7 @@ function mapSupabasePost(row) {
     id: row.id,
     title: row.title || "Untitled",
     body: row.body || "",
+    excerpt: row.excerpt || "",
     type: row.category || "Journal",
     rating: 0,
     date: new Date().toISOString().slice(0, 10),
@@ -74,6 +77,7 @@ export default function App() {
   const isAdminPage = path === "/admin";
   const isPostPage = path.startsWith("/post/");
   const postId = isPostPage ? path.split("/post/")[1] : null;
+  const [currentView, setCurrentView] = useState("home");
 
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
@@ -191,12 +195,12 @@ const remainingPosts = visiblePosts.slice(1);
     if (!draft.title.trim() && !draft.body.trim()) return;
 
     const postPayload = {
-      title: draft.title.trim() || "Untitled",
-      body: draft.body || "",
-      category: draft.type || "Journal",
-      image_url: draft.image || "",
-    };
-
+  title: draft.title.trim() || "Untitled",
+  body: draft.body || "",
+  excerpt: draft.excerpt || "",
+  category: draft.type || "Journal",
+  image_url: draft.image || "",
+};
     const alreadyExists = posts.some((post) => post.id === draft.id);
 
     if (alreadyExists) {
@@ -337,25 +341,35 @@ const remainingPosts = visiblePosts.slice(1);
             ← Back to all posts
           </a>
 
-          <article style={{ ...styles.card, marginTop: "24px" }}>
-            {selectedPost.image && (
-              <img
-                src={selectedPost.image}
-                alt={selectedPost.title}
-                style={styles.postImage}
-              />
-            )}
+       <article style={styles.articlePage}>
+  <div style={styles.articleHeader}>
+    <div style={styles.articleDate}>
+      {selectedPost.date}
+    </div>
 
-            <div style={styles.cardBody}>
-              <div style={styles.meta}>
-                {selectedPost.type} · {selectedPost.date}
-              </div>
+    <h1 style={styles.articleTitle}>
+      {selectedPost.title}
+    </h1>
 
-              <h1 style={styles.title}>{selectedPost.title}</h1>
+    {selectedPost.image && (
+      <img
+        src={selectedPost.image}
+        alt={selectedPost.title}
+        style={styles.articleHeroImage}
+      />
+    )}
 
-              <MarkdownContent>{selectedPost.body}</MarkdownContent>
-            </div>
-          </article>
+    <div style={styles.articleAuthor}>
+      Article by Asher Compton
+    </div>
+  </div>
+
+  <div
+    className="article-body"
+    style={styles.markdownBody}
+    dangerouslySetInnerHTML={{ __html: selectedPost.body || "" }}
+  />
+</article>
         </main>
       </div>
     );
@@ -377,13 +391,21 @@ const remainingPosts = visiblePosts.slice(1);
         ...styles.navLink,
         ...(activeCategory === item ? styles.navLinkActive : {}),
       }}
-      onClick={() => setActiveCategory(item)}
+     onClick={() => {
+  setCurrentView("home");
+  setActiveCategory(item);
+}}
     >
       {item}
     </button>
   ))}
 
-  <a href="/about" style={styles.navLink}>About</a>
+ <button
+  style={styles.navLink}
+  onClick={() => setCurrentView("about")}
+>
+  About
+</button>
 </nav>
 </div>
           {siteConfig.homepage_intro && (
@@ -431,6 +453,17 @@ const remainingPosts = visiblePosts.slice(1);
       </header>
 
       <main style={styles.layout}>
+{currentView === "about" ? (
+  <article style={styles.card}>
+    <h1>About</h1>
+
+    <div style={styles.markdownBody}>
+      <ReactMarkdown>
+        {siteConfig.about_page || "No about page has been written yet."}
+      </ReactMarkdown>
+    </div>
+  </article>
+) : (
         <section style={styles.posts}>
           {featuredPost && (
             <FeaturedArticle
@@ -459,6 +492,7 @@ const remainingPosts = visiblePosts.slice(1);
             <div style={styles.card}>No posts found.</div>
           )}
         </section>
+         )}
 
         {isAdminPage && session && (
           <aside style={styles.sidebar}>
@@ -502,7 +536,7 @@ function FeaturedArticle({ post, isAdmin, onEdit, onDelete }) {
 
         <h2 style={styles.featuredTitle}>{post.title}</h2>
 
-        <p style={styles.featuredDeck}>{(post.body || "").slice(0, 220)}...</p>
+        <p style={styles.featuredDeck}>{post.excerpt || `${(post.body || "").slice(0, 220)}...`}</p>
 
         <a href={`/post/${post.id}`} style={styles.readLink}>
           Read featured →
@@ -528,7 +562,7 @@ function ArticleCard({ post, isAdmin, onEdit, onDelete }) {
 
         <h2 style={styles.postTitle}>{post.title}</h2>
 
-        <p style={styles.bodyText}>{(post.body || "").slice(0, 150)}...</p>
+        <p style={styles.bodyText}>{post.excerpt || `${(post.body || "").slice(0, 150)}...`}</p>
 
         <a href={`/post/${post.id}`} style={styles.readLink}>
           Read article →
@@ -590,13 +624,6 @@ function SiteSettingsPanel({
         value={settingsDraft.site_title || ""}
         onChange={(event) => updateSetting("site_title", event.target.value)}
         placeholder="Site title"
-      />
-
-      <textarea
-        style={styles.textarea}
-        value={settingsDraft.site_tagline || ""}
-        onChange={(event) => updateSetting("site_tagline", event.target.value)}
-        placeholder="Site tagline"
       />
 
       <textarea
@@ -691,7 +718,73 @@ function AdminStats({ posts }) {
     </>
   );
 }
+function RichTextEditor({ value, onChange }) {
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: value || "",
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
 
+  if (!editor) return null;
+
+return (
+  <div style={styles.richTextEditor}>
+    <div style={styles.editorToolbar}>
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+      >
+        H2
+      </button>
+
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+      >
+        H3
+      </button>
+
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+      >
+        Bold
+      </button>
+
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+      >
+        Italic
+      </button>
+
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+      >
+        Bullets
+      </button>
+
+      <button
+        type="button"
+        style={styles.editorButton}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+      >
+        Numbers
+      </button>
+    </div>
+
+    <EditorContent editor={editor} />
+  </div>
+);
+}
 function PostEditorModal({
   draft,
   setDraft,
@@ -771,13 +864,16 @@ function PostEditorModal({
         {draft.image && (
           <img src={draft.image} alt="Draft" style={styles.previewImage} />
         )}
-
-        <textarea
-          style={styles.textarea}
-          value={draft.body}
-          onChange={(event) => updateDraft("body", event.target.value)}
-          placeholder="Write anything here..."
-        />
+         <textarea
+  style={{ ...styles.textarea, minHeight: "100px" }}
+  value={draft.excerpt || ""}
+  onChange={(event) => updateDraft("excerpt", event.target.value)}
+  placeholder="Short homepage excerpt..."
+/>
+        <RichTextEditor
+  value={draft.body}
+  onChange={(html) => updateDraft("body", html)}
+/>
 
         <div style={styles.buttonRow}>
           <button style={styles.primaryButton} onClick={savePost}>
@@ -793,30 +889,30 @@ function PostEditorModal({
 }
 
 const styles = {
+
   page: {
     minHeight: "100vh",
     background: "#f7f4ef",
     color: "#1f2933",
     fontFamily: "Inter, system-ui, sans-serif",
-    padding: "40px 24px",
+    padding: "0 0 40px",
   },
-
-  hero: {
-    maxWidth: "1120px",
-    margin: "0 auto 20px",
-    background: "#fffaf3",
-    border: "1px solid #eadfce",
-    borderRadius: "0px",
-    padding: "20px 32px",
-    boxShadow: "0 24px 70px rgba(31, 41, 51, 0.08)",
-  },
+hero: {
+  width: "100%",
+  background: "#fffaf3",
+  borderBottom: "1px solid #eadfce",
+  padding: "24px 40px",
+  boxSizing: "border-box",
+  margin: "0 0 32px",
+},
 
   title: {
     fontSize: "64px",
     lineHeight: 0.95,
     margin: "0 0 20px",
     letterSpacing: "-0.06em",
-    fontWeight: 800,
+    fontWeight: 900,
+    fontFamily: "'Libre Baskerville', Georgia, serif",
   },
 
   subtitle: {
@@ -841,11 +937,82 @@ const styles = {
     marginTop: "18px",
   },
 
-  postPageLayout: {
-    maxWidth: "760px",
-    margin: "0 auto",
-  },
+ postPageLayout: {
+  maxWidth: "760px",
+  margin: "0 auto",
+  padding: "56px 24px",
+},
+articlePage: {
+  marginTop: "24px",
+  background: "transparent",
+  border: "none",
+  boxShadow: "none",
+},
+richTextEditor: {
+  minHeight: "260px",
+  border: "1px solid #d4d4d8",
+  borderRadius: "16px",
+  padding: "18px",
+  fontSize: "18px",
+  lineHeight: 1.7,
+  background: "white",
+},
+articleHeader: {
+  marginBottom: "48px",
+},
 
+articleDate: {
+  textAlign: "center",
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  fontSize: "13px",
+  color: "#6b7280",
+  marginBottom: "18px",
+},
+
+articleAuthor: {
+  textAlign: "center",
+  marginTop: "24px",
+  marginBottom: "48px",
+  fontSize: "16px",
+  color: "#4b5563",
+},
+
+articleHeroImage: {
+  width: "100%",
+  maxHeight: "520px",
+  objectFit: "cover",
+  margin: "32px auto 24px",
+  display: "block",
+},
+articleTitle: {
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "64px",
+  lineHeight: 1.05,
+  fontWeight: 700,
+  letterSpacing: "-0.045em",
+  textAlign: "center",
+  maxWidth: "980px",
+  margin: "0 auto 36px",
+  color: "#1f2933",
+},
+editorToolbar: {
+  display: "flex",
+  gap: "8px",
+  flexWrap: "wrap",
+  marginBottom: "12px",
+  paddingBottom: "12px",
+  borderBottom: "1px solid #e5e7eb",
+},
+
+editorButton: {
+  border: "1px solid #d4d4d8",
+  background: "#fafafa",
+  borderRadius: "10px",
+  padding: "8px 10px",
+  fontSize: "14px",
+  cursor: "pointer",
+},
   layout: {
     maxWidth: "1120px",
     margin: "0 auto",
@@ -867,7 +1034,7 @@ const styles = {
   featuredCard: {
     gridColumn: "1 / -1",
     display: "grid",
-    gridTemplateColumns: "1.1fr 0.9fr",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
     gap: "32px",
     alignItems: "center",
     background: "#fffaf3",
@@ -894,6 +1061,7 @@ const styles = {
   },
 
   featuredTitle: {
+    fontFamily: "'Libre Baskerville', Georgia, serif",
     fontSize: "52px",
     fontWeight: "800",
     lineHeight: 1.05,
@@ -903,11 +1071,13 @@ const styles = {
   },
 
   featuredDeck: {
-    fontSize: "22px",
-    lineHeight: 1.5,
-    color: "#52525b",
-    marginBottom: "24px",
-  },
+  fontFamily: "Georgia, serif",
+  fontSize: "16px",
+  marginBottom: "20px",
+  fontStyle: "italic",
+  color: "#5f6368",
+  lineHeight: 1.7,
+},
 masthead: {
   textAlign: "center",
 },
@@ -986,6 +1156,7 @@ navLinkActive: {
   postTitle: {
     margin: "12px 0",
     fontSize: "34px",
+    fontFamily: "'Libre Baskerville', Georgia, serif",
     fontWeight: "800",
     letterSpacing: "-0.03em",
     lineHeight: 1.1,
@@ -994,8 +1165,11 @@ navLinkActive: {
 
   bodyText: {
     whiteSpace: "pre-wrap",
-    lineHeight: 1.7,
-    color: "#3f3f46",
+fontFamily: "Georgia, serif",
+  fontSize: "15px",
+  lineHeight: 1.55,
+  color: "#6b7280",
+  margin: "0 0 14px",
   },
 
   readLink: {
@@ -1004,11 +1178,12 @@ navLinkActive: {
     textDecoration: "none",
   },
 
-  markdownBody: {
-    lineHeight: 1.8,
-    fontSize: "18px",
-    color: "#3f3f46",
-  },
+markdownBody: {
+  fontFamily: "'Source Serif 4', Georgia, serif",
+  fontSize: "22px",
+  lineHeight: 1.75,
+  color: "#111827",
+},
 
   markdownH1: {
     fontSize: "32px",
