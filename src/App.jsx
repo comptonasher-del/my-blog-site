@@ -36,6 +36,10 @@ function emptyPost() {
     image: "",
     body: "",
     excerpt: "", 
+    author: "",
+authorImage: "",
+authorDescription: "",
+featured: false,
   };
 }
 
@@ -45,6 +49,10 @@ function mapSupabasePost(row) {
     title: row.title || "Untitled",
     body: row.body || "",
     excerpt: row.excerpt || "",
+    author: row.author || "Asher Compton",
+authorImage: row.author_image || "",
+authorDescription: row.author_description || "",
+featured: row.featured || false,
     type: row.category || "Journal",
     rating: 0,
     date: new Date().toISOString().slice(0, 10),
@@ -121,14 +129,18 @@ const visiblePosts = useMemo(() => {
 
   if (activeCategory === "Home") return sorted;
   if (activeCategory === "Essays") return sorted.filter((post) => post.type === "Op-Ed");
-  if (activeCategory === "Book Reviews") return sorted.filter((post) => post.type === "Book Review");
+  if (activeCategory === "Reviews") return sorted.filter((post) => post.type === "Book Review");
   if (activeCategory === "Journal") return sorted.filter((post) => post.type === "Journal");
 
   return sorted;
 }, [posts, activeCategory]);
 
-const featuredPost = visiblePosts[0];
-const remainingPosts = visiblePosts.slice(1);
+const featuredPost =
+  visiblePosts.find((post) => post.featured) || visiblePosts[0];
+
+const remainingPosts = visiblePosts.filter(
+  (post) => post.id !== featuredPost?.id
+);
 
   const selectedPost = posts.find((post) => String(post.id) === String(postId));
 
@@ -198,6 +210,10 @@ const remainingPosts = visiblePosts.slice(1);
   title: draft.title.trim() || "Untitled",
   body: draft.body || "",
   excerpt: draft.excerpt || "",
+ author: draft.author || "Asher Compton",
+author_image: draft.authorImage || "",
+author_description: draft.authorDescription || "",
+featured: draft.featured || false,
   category: draft.type || "Journal",
   image_url: draft.image || "",
 };
@@ -358,10 +374,10 @@ const remainingPosts = visiblePosts.slice(1);
         style={styles.articleHeroImage}
       />
     )}
-
-    <div style={styles.articleAuthor}>
-      Article by Asher Compton
-    </div>
+<div style={styles.articleMetaRow}>
+  <AuthorBlock post={selectedPost} />
+  <ShareButton post={selectedPost} />
+</div>
   </div>
 
   <div
@@ -384,7 +400,7 @@ const remainingPosts = visiblePosts.slice(1);
   <p style={styles.subtitle}>{siteConfig.site_tagline}</p>
 
  <nav style={styles.nav}>
-  {["Home", "Journal", "Essays", "Book Reviews"].map((item) => (
+  {["Home", "Journal", "Essays", "Reviews"].map((item) => (
     <button
       key={item}
       style={{
@@ -523,7 +539,73 @@ const remainingPosts = visiblePosts.slice(1);
     </div>
   );
 }
+function ShareButton({ post }) {
+  const [open, setOpen] = useState(false);
+  const postUrl = `${window.location.origin}/post/${post.id}`;
 
+  async function copyLink() {
+    await navigator.clipboard.writeText(postUrl);
+    alert("Link copied!");
+    setOpen(false);
+  }
+
+  return (
+    <div style={styles.shareWrapper}>
+      <button style={styles.shareButton} onClick={() => setOpen(!open)}>
+        Share ▾
+      </button>
+
+      {open && (
+        <div style={styles.shareMenu}>
+          <button style={styles.shareMenuItem} onClick={copyLink}>
+            Copy link
+          </button>
+
+          <a
+            style={styles.shareMenuItem}
+            href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(postUrl)}`}
+          >
+            Email
+          </a>
+
+          <a
+            style={styles.shareMenuItem}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Facebook
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+function AuthorBlock({ post }) {
+  return (
+    <div style={styles.authorBlock}>
+      {post.authorImage && (
+        <img
+          src={post.authorImage}
+          alt={post.author}
+          style={styles.authorPhoto}
+        />
+      )}
+
+      <div>
+        <div style={styles.authorName}>
+          Article by <span>{post.author || "Asher Compton"}</span>
+        </div>
+
+        {post.authorDescription && (
+          <div style={styles.authorDescription}>
+            {post.authorDescription}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 function FeaturedArticle({ post, isAdmin, onEdit, onDelete }) {
   return (
     <article style={styles.featuredCard}>
@@ -818,7 +900,33 @@ function PostEditorModal({
           onChange={(event) => updateDraft("title", event.target.value)}
           placeholder="Title"
         />
+<input
+  style={styles.input}
+  value={draft.author || ""}
+  onChange={(event) => updateDraft("author", event.target.value)}
+  placeholder="Author name"
+/>
+<input
+  style={styles.input}
+  value={draft.authorImage || ""}
+  onChange={(event) => updateDraft("authorImage", event.target.value)}
+  placeholder="Author photo URL"
+/>
 
+<input
+  style={styles.input}
+  value={draft.authorDescription || ""}
+  onChange={(event) => updateDraft("authorDescription", event.target.value)}
+  placeholder="Author description, like Pastor, Frisco, Texas"
+/>
+<label style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+  <input
+    type="checkbox"
+    checked={draft.featured || false}
+    onChange={(event) => updateDraft("featured", event.target.checked)}
+  />
+  Feature this article on the homepage
+</label>
         <div style={styles.formGrid}>
           <select
             style={styles.select}
@@ -948,6 +1056,13 @@ articlePage: {
   border: "none",
   boxShadow: "none",
 },
+articleMetaRow: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: "20px",
+  marginBottom: "40px",
+},
 richTextEditor: {
   minHeight: "260px",
   border: "1px solid #d4d4d8",
@@ -977,7 +1092,29 @@ articleAuthor: {
   fontSize: "16px",
   color: "#4b5563",
 },
+authorBlock: {
+  display: "flex",
+  alignItems: "center",
+  gap: "14px",
+},
+authorPhoto: {
+  width: "64px",
+  height: "64px",
+  borderRadius: "50%",
+  objectFit: "cover",
+},
 
+authorName: {
+  fontSize: "16px",
+  fontWeight: 600,
+  color: "#374151",
+},
+
+authorDescription: {
+  marginTop: "4px",
+  fontSize: "15px",
+  color: "#6b7280",
+},
 articleHeroImage: {
   width: "100%",
   maxHeight: "520px",
@@ -1124,7 +1261,7 @@ navLinkActive: {
     background: "#fffaf3",
     border: "1px solid #eadfce",
     borderRadius: "28px",
-    padding: "32px",
+    height: "fit-content",
     boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
     overflow: "hidden",
   },
@@ -1324,4 +1461,44 @@ markdownBody: {
     cursor: "pointer",
     color: "#52525b",
   },
+shareWrapper: {
+  position: "relative",
+},
+shareButton: {
+  border: "1px solid #d4d4d8",
+  background: "#fffaf3",
+  color: "#1f2933",
+  borderRadius: "999px",
+  padding: "10px 16px",
+  fontSize: "14px",
+  fontWeight: 700,
+  cursor: "pointer",
+},
+
+shareMenu: {
+  position: "absolute",
+  top: "44px",
+  right: 0,
+  background: "white",
+  border: "1px solid #e5e7eb",
+  borderRadius: "14px",
+  boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+  padding: "8px",
+  display: "grid",
+  gap: "4px",
+  zIndex: 10,
+},
+
+shareMenuItem: {
+  border: 0,
+  background: "transparent",
+  color: "#1f2933",
+  textDecoration: "none",
+  padding: "10px 14px",
+  borderRadius: "10px",
+  fontSize: "14px",
+  textAlign: "left",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+},
 };
