@@ -84,3 +84,12 @@
     min-height: 220px;
   }
 }
+.article-body p:first-of-type::first-letter {
+  float: left;
+  font-size: 4.5rem;
+  line-height: 0.85;
+  padding-right: 0.08em;
+  padding-top: 0.05em;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-weight: 700;
+}

@@ -37,21 +37,33 @@ function emptyPost() {
     body: "",
     excerpt: "", 
     author: "",
+    Slug: "",
 authorImage: "",
 authorDescription: "",
 featured: false,
   };
 }
-
+function makeSlug(title) {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
 function mapSupabasePost(row) {
   return {
     id: row.id,
     title: row.title || "Untitled",
+    slug: row.slug || makeSlug(row.title || "untitled"),
     body: row.body || "",
     excerpt: row.excerpt || "",
     author: row.author || "Asher Compton",
 authorImage: row.author_image || "",
 authorDescription: row.author_description || "",
+views: row.views || 0,
+readClicks: row.read_clicks || 0,
+shares: row.shares || 0,
 featured: row.featured || false,
     type: row.category || "Journal",
     rating: 0,
@@ -62,7 +74,7 @@ featured: row.featured || false,
 
 function MarkdownContent({ children }) {
   return (
-    <div style={styles.markdownBody}>
+    <div style={styles.markdownBody} className="article-body">
       <ReactMarkdown
         components={{
           h1: ({ children }) => <h1 style={styles.markdownH1}>{children}</h1>,
@@ -95,6 +107,11 @@ export default function App() {
   const [loadingPosts, setLoadingPosts] = useState(true);
 
   const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
+
+
+useEffect(() => {
+  document.title = siteConfig.site_title || "From One to the Next";
+}, [siteConfig.site_title]);
   const [settingsDraft, setSettingsDraft] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
 
@@ -142,8 +159,32 @@ const remainingPosts = visiblePosts.filter(
   (post) => post.id !== featuredPost?.id
 );
 
-  const selectedPost = posts.find((post) => String(post.id) === String(postId));
+ const selectedPost = posts.find(
+  (post) => String(post.slug) === String(postId) || String(post.id) === String(postId)
+);
+const [cardHovered, setCardHovered] = useState(null);
+useEffect(() => {
+  if (isPostPage && selectedPost?.title) {
+    document.title = `${selectedPost.title} | From One to the Next`;
+  } else {
+    document.title = siteConfig.site_title || "From One to the Next";
+  }
+}, [isPostPage, selectedPost?.title, siteConfig.site_title]);
+useEffect(() => {
+  if (isPostPage && selectedPost?.id && !session) {
+    incrementPostMetric(selectedPost.id, "views");
+  }
+}, [isPostPage, selectedPost?.id, session]);
+async function incrementPostMetric(postId, field) {
+  const { error } = await supabase.rpc("increment_post_metric", {
+    post_id_input: postId,
+    field_name_input: field,
+  });
 
+  if (error) {
+    console.error("Error updating metric:", error);
+  }
+}
   async function loadPosts() {
     setLoadingPosts(true);
 
@@ -211,6 +252,7 @@ const remainingPosts = visiblePosts.filter(
   body: draft.body || "",
   excerpt: draft.excerpt || "",
  author: draft.author || "Asher Compton",
+slug: makeSlug(draft.title || "untitled"),
 author_image: draft.authorImage || "",
 author_description: draft.authorDescription || "",
 featured: draft.featured || false,
@@ -353,9 +395,9 @@ featured: draft.featured || false,
     return (
       <div style={styles.page}>
         <main style={styles.postPageLayout}>
-          <a href="/" style={{ color: "#52525b" }}>
-            ← Back to all posts
-          </a>
+         <a href="/" style={styles.articleMastheadLink}>
+  From One to the Next
+</a>
 
        <article style={styles.articlePage}>
   <div style={styles.articleHeader}>
@@ -376,8 +418,9 @@ featured: draft.featured || false,
     )}
 <div style={styles.articleMetaRow}>
   <AuthorBlock post={selectedPost} />
-  <ShareButton post={selectedPost} />
+ <ShareButton post={selectedPost} incrementPostMetric={incrementPostMetric} />
 </div>
+{session && <AdminPostMetrics post={selectedPost} />}
   </div>
 
   <div
@@ -470,7 +513,7 @@ featured: draft.featured || false,
 
       <main style={styles.layout}>
 {currentView === "about" ? (
-  <article style={styles.card}>
+  <article style={styles.aboutcard}>
     <h1>About</h1>
 
     <div style={styles.markdownBody}>
@@ -480,7 +523,11 @@ featured: draft.featured || false,
     </div>
   </article>
 ) : (
+
         <section style={styles.posts}>
+{loadingPosts && (
+  <div style={styles.card}>Loading articles...</div>
+)}
           {featuredPost && (
             <FeaturedArticle
               post={featuredPost}
@@ -495,18 +542,19 @@ featured: draft.featured || false,
           )}
 
           {remainingPosts.map((post) => (
-            <ArticleCard
-              key={post.id}
-              post={post}
+           <ArticleCard
+  key={post.id}
+  post={post}
+  incrementPostMetric={incrementPostMetric}
               isAdmin={isAdminPage && !!session}
               onEdit={startEdit}
               onDelete={deletePost}
             />
           ))}
 
-          {visiblePosts.length === 0 && (
-            <div style={styles.card}>No posts found.</div>
-          )}
+          {!loadingPosts && visiblePosts.length === 0 && (
+  <div style={styles.card}>No posts found.</div>
+)}
         </section>
          )}
 
@@ -539,12 +587,19 @@ featured: draft.featured || false,
     </div>
   );
 }
-function ShareButton({ post }) {
+function ShareButton({ post, incrementPostMetric }) {
   const [open, setOpen] = useState(false);
-  const postUrl = `${window.location.origin}/post/${post.id}`;
+  const postUrl = `${window.location.origin}/post/${post.slug || post.id}`;
+
+  async function trackShare() {
+    if (incrementPostMetric) {
+      await incrementPostMetric(post.id, "shares");
+    }
+  }
 
   async function copyLink() {
     await navigator.clipboard.writeText(postUrl);
+    await trackShare();
     alert("Link copied!");
     setOpen(false);
   }
@@ -563,7 +618,8 @@ function ShareButton({ post }) {
 
           <a
             style={styles.shareMenuItem}
-            href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(postUrl)}`}
+            href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(`Read this article: ${postUrl}`)}`}
+            onClick={trackShare}
           >
             Email
           </a>
@@ -573,11 +629,21 @@ function ShareButton({ post }) {
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
             target="_blank"
             rel="noreferrer"
+            onClick={trackShare}
           >
             Facebook
           </a>
         </div>
       )}
+    </div>
+  );
+}
+function AdminPostMetrics({ post }) {
+  return (
+    <div style={styles.adminMetrics}>
+      <span>{post.views || 0} views</span>
+      <span>{post.readClicks || 0} read clicks</span>
+      <span>{post.shares || 0} shares</span>
     </div>
   );
 }
@@ -608,7 +674,12 @@ function AuthorBlock({ post }) {
 }
 function FeaturedArticle({ post, isAdmin, onEdit, onDelete }) {
   return (
-    <article style={styles.featuredCard}>
+    <article
+  style={styles.featuredCard}
+  onClick={() => {
+    window.location.href = `/post/${post.slug || post.id}`;
+  }}
+>
       {post.image && (
         <img src={post.image} alt={post.title} style={styles.featuredImage} />
       )}
@@ -620,9 +691,7 @@ function FeaturedArticle({ post, isAdmin, onEdit, onDelete }) {
 
         <p style={styles.featuredDeck}>{post.excerpt || `${(post.body || "").slice(0, 220)}...`}</p>
 
-        <a href={`/post/${post.id}`} style={styles.readLink}>
-          Read featured →
-        </a>
+      
 
         {isAdmin && <AdminPostButtons post={post} onEdit={onEdit} onDelete={onDelete} />}
       </div>
@@ -630,9 +699,18 @@ function FeaturedArticle({ post, isAdmin, onEdit, onDelete }) {
   );
 }
 
-function ArticleCard({ post, isAdmin, onEdit, onDelete }) {
+function ArticleCard({ post, isAdmin, onEdit, onDelete, incrementPostMetric }) {
+const [hovered, setHovered] = useState(false);
   return (
-    <article style={styles.card}>
+  <article
+  style={hovered ? styles.cardHover : styles.card}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+  onClick={() => {
+    incrementPostMetric(post.id, "read_clicks");
+    window.location.href = `/post/${post.slug || post.id}`;
+  }}
+>
       {post.image && (
         <img src={post.image} alt={post.title} style={styles.postImage} />
       )}
@@ -646,9 +724,13 @@ function ArticleCard({ post, isAdmin, onEdit, onDelete }) {
 
         <p style={styles.bodyText}>{post.excerpt || `${(post.body || "").slice(0, 150)}...`}</p>
 
-        <a href={`/post/${post.id}`} style={styles.readLink}>
-          Read article →
-        </a>
+       <a
+  href={`/post/${post.slug || post.id}`}
+  style={styles.readLink}
+  onClick={() => incrementPostMetric(post.id, "read_clicks")}
+>
+  Read article →
+</a>
 
         {isAdmin && <AdminPostButtons post={post} onEdit={onEdit} onDelete={onDelete} />}
       </div>
@@ -1036,6 +1118,14 @@ hero: {
     color: "#555",
     fontSize: "16px",
   },
+aboutCard: {
+  background: "#fffaf3",
+  border: "1px solid #eadfce",
+  borderRadius: "28px",
+  padding: "32px",
+  boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
+  overflow: "hidden",
+},
 
   adminHeaderControls: {
     display: "flex",
@@ -1061,6 +1151,17 @@ articleMetaRow: {
   justifyContent: "space-between",
   alignItems: "center",
   marginTop: "20px",
+  marginBottom: "40px",
+},
+articleMastheadLink: {
+  display: "block",
+  textAlign: "center",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "22px",
+  fontWeight: 800,
+  letterSpacing: "-0.03em",
+  color: "#1f2933",
+  textDecoration: "none",
   marginBottom: "40px",
 },
 richTextEditor: {
@@ -1133,6 +1234,19 @@ articleTitle: {
   margin: "0 auto 36px",
   color: "#1f2933",
 },
+adminMetrics: {
+  display: "flex",
+  gap: "18px",
+  flexWrap: "wrap",
+  maxWidth: "760px",
+  margin: "-24px auto 40px",
+  padding: "12px 0",
+  borderTop: "1px solid #e5e7eb",
+  borderBottom: "1px solid #e5e7eb",
+  color: "#6b7280",
+  fontSize: "14px",
+  fontWeight: 600,
+},
 editorToolbar: {
   display: "flex",
   gap: "8px",
@@ -1179,8 +1293,9 @@ editorButton: {
     borderRadius: "28px",
     padding: "32px",
     boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-  },
-
+   cursor: "pointer",
+transition: "transform 0.15s ease, box-shadow 0.15s ease",
+},
   featuredImage: {
     width: "100%",
     height: "260px",
@@ -1214,6 +1329,21 @@ editorButton: {
   fontStyle: "italic",
   color: "#5f6368",
   lineHeight: 1.7,
+},
+featuredCardHover: {
+  gridColumn: "1 / -1",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: "32px",
+  alignItems: "center",
+  background: "#fffaf3",
+  border: "1px solid #eadfce",
+  borderRadius: "28px",
+  padding: "32px",
+  boxShadow: "0 28px 70px rgba(31,41,51,0.12)",
+  cursor: "pointer",
+  transform: "translateY(-4px)",
+  transition: "transform 0.15s ease, box-shadow 0.15s ease",
 },
 masthead: {
   textAlign: "center",
@@ -1258,18 +1388,30 @@ navLinkActive: {
   },
 
   card: {
-    background: "#fffaf3",
-    border: "1px solid #eadfce",
-    borderRadius: "28px",
-    height: "fit-content",
-    boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-    overflow: "hidden",
-  },
+  background: "#fffaf3",
+  border: "1px solid #eadfce",
+  borderRadius: "28px",
+  boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
+  overflow: "hidden",
+  height: "fit-content",
+  cursor: "pointer",
+  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+},
 
   cardBody: {
     padding: "24px",
   },
-
+cardHover: {
+  background: "#fffaf3",
+  border: "1px solid #eadfce",
+  borderRadius: "28px",
+  boxShadow: "0 24px 60px rgba(31,41,51,0.12)",
+  overflow: "hidden",
+  height: "fit-content",
+  cursor: "pointer",
+  transform: "translateY(-3px)",
+  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+},
   postImage: {
     width: "100%",
     height: "220px",
