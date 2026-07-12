@@ -584,6 +584,11 @@ featured: draft.featured || false,
           handleImageUpload={handleImageUpload}
         />
       )}
+
+<footer style={styles.footer}>
+  <p>© {new Date().getFullYear()} From One to the Next. All rights reserved.</p>
+</footer>
+
     </div>
   );
 }
