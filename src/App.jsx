@@ -119,6 +119,8 @@ useEffect(() => {
   const [draft, setDraft] = useState(emptyPost());
 
   const [activeCategory, setActiveCategory] = useState("Home");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
@@ -142,16 +144,42 @@ useEffect(() => {
   }, []);
 
 const visiblePosts = useMemo(() => {
-  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  let filtered = [...posts].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
 
-  if (activeCategory === "Home") return sorted;
-  if (activeCategory === "Essays") return sorted.filter((post) => post.type === "Op-Ed");
-  if (activeCategory === "Reviews") return sorted.filter((post) => post.type === "Book Review");
-  if (activeCategory === "Journal") return sorted.filter((post) => post.type === "Journal");
+  if (activeCategory === "Essays") {
+    filtered = filtered.filter(
+      (post) => post.type === "Op-Ed"
+    );
+  }
 
-  return sorted;
-}, [posts, activeCategory]);
+  if (activeCategory === "Reviews") {
+    filtered = filtered.filter(
+      (post) => post.type === "Book Review"
+    );
+  }
 
+  if (activeCategory === "Journal") {
+    filtered = filtered.filter(
+      (post) => post.type === "Journal"
+    );
+  }
+
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+
+    filtered = filtered.filter((post) =>
+      post.title?.toLowerCase().includes(query) ||
+      post.excerpt?.toLowerCase().includes(query) ||
+      post.body?.toLowerCase().includes(query) ||
+      post.author?.toLowerCase().includes(query)
+    );
+  }
+
+  return filtered;
+
+}, [posts, activeCategory, searchQuery]);
 const featuredPost =
   visiblePosts.find((post) => post.featured) || visiblePosts[0];
 
@@ -465,7 +493,38 @@ featured: draft.featured || false,
 >
   About
 </button>
+
+<button
+  style={styles.searchButton}
+  onClick={() => setSearchOpen(!searchOpen)}
+>
+  🔍
+</button>
+
 </nav>
+
+{searchOpen && (
+  <div style={styles.searchWrapper}>
+    <input
+      autoFocus
+      style={styles.searchInput}
+      placeholder="Search articles..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+
+    <button
+      style={styles.closeSearch}
+      onClick={() => {
+        setSearchQuery("");
+        setSearchOpen(false);
+      }}
+    >
+      ✕
+    </button>
+  </div>
+)}
+
 </div>
           {siteConfig.homepage_intro && (
             <p style={styles.homepageIntro}>{siteConfig.homepage_intro}</p>
@@ -1384,6 +1443,39 @@ navLinkActive: {
   paddingBottom: "4px",
 },
 
+searchButton: {
+  background: "transparent",
+  border: 0,
+  cursor: "pointer",
+  fontSize: "18px",
+  padding: "0 4px",
+},
+
+searchWrapper: {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "10px",
+  marginTop: "18px",
+},
+
+searchInput: {
+  width: "100%",
+  maxWidth: "420px",
+  padding: "12px 18px",
+  borderRadius: "999px",
+  border: "1px solid #d4d4d8",
+  fontSize: "16px",
+  background: "#ffffff",
+  outline: "none",
+},
+
+closeSearch: {
+  border: 0,
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: "18px",
+},
   sectionHeading: {
     gridColumn: "1 / -1",
     fontSize: "22px",
