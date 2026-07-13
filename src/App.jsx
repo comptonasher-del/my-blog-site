@@ -498,7 +498,7 @@ featured: draft.featured || false,
   style={styles.searchButton}
   onClick={() => setSearchOpen(!searchOpen)}
 >
-  🔍
+  ⌕
 </button>
 
 </nav>
@@ -1447,10 +1447,10 @@ searchButton: {
   background: "transparent",
   border: 0,
   cursor: "pointer",
-  fontSize: "18px",
+  fontSize: "24px",
   padding: "0 4px",
+  color: "#1f2933",
 },
-
 searchWrapper: {
   display: "flex",
   justifyContent: "center",
