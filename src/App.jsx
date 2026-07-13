@@ -488,7 +488,10 @@ featured: draft.featured || false,
   ))}
 
  <button
-  style={styles.navLink}
+  style={{
+    ...styles.navLink,
+    ...(currentView === "about" ? styles.navLinkActive : {}),
+  }}
   onClick={() => setCurrentView("about")}
 >
   About
