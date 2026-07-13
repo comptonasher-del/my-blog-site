@@ -490,11 +490,11 @@ featured: draft.featured || false,
  <button
   style={{
     ...styles.navLink,
-    ...(currentView === "about" ? styles.navLinkActive : {}),
+    ...(activeCategory === "About" ? styles.navLinkActive : {}),
   }}
   onClick={() => {
     setCurrentView("about");
-    setActiveCategory("");
+    setActiveCategory("About");
   }}
 >
   About
