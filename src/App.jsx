@@ -492,7 +492,10 @@ featured: draft.featured || false,
     ...styles.navLink,
     ...(currentView === "about" ? styles.navLinkActive : {}),
   }}
-  onClick={() => setCurrentView("about")}
+  onClick={() => {
+    setCurrentView("about");
+    setActiveCategory("");
+  }}
 >
   About
 </button>
@@ -1434,16 +1437,17 @@ navLink: {
   textDecoration: "none",
   background: "transparent",
   border: 0,
+  borderBottom: "2px solid transparent",
   cursor: "pointer",
   font: "inherit",
   fontWeight: 700,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
+  paddingBottom: "4px",
 },
 
 navLinkActive: {
   borderBottom: "2px solid #1f2933",
-  paddingBottom: "4px",
 },
 
 searchButton: {
