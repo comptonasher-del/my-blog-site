@@ -4,6 +4,11 @@ import { supabase } from "./lib/supabase";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import styles from "./styles/styles";
+import {
+  emptyPost,
+  makeSlug,
+  mapSupabasePost,
+} from "./utils/postHelpers";
 
 const POST_TYPES = [
   "Op-Ed",
@@ -27,51 +32,6 @@ const DEFAULT_SITE_CONFIG = {
   card_radius: 28,
 };
 
-function emptyPost() {
-  return {
-    id: crypto.randomUUID(),
-    title: "",
-    type: "Journal",
-    rating: 0,
-    date: new Date().toISOString().slice(0, 10),
-    image: "",
-    body: "",
-    excerpt: "", 
-    author: "",
-    Slug: "",
-authorImage: "",
-authorDescription: "",
-featured: false,
-  };
-}
-function makeSlug(title) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-function mapSupabasePost(row) {
-  return {
-    id: row.id,
-    title: row.title || "Untitled",
-    slug: row.slug || makeSlug(row.title || "untitled"),
-    body: row.body || "",
-    excerpt: row.excerpt || "",
-    author: row.author || "Asher Compton",
-authorImage: row.author_image || "",
-authorDescription: row.author_description || "",
-views: row.views || 0,
-readClicks: row.read_clicks || 0,
-shares: row.shares || 0,
-featured: row.featured || false,
-    type: row.category || "Journal",
-    rating: 0,
-    date: new Date().toISOString().slice(0, 10),
-    image: row.image_url || "",
-  };
-}
 
 function MarkdownContent({ children }) {
   return (
