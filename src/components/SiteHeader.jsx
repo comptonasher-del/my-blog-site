@@ -25,15 +25,25 @@ export default function SiteHeader({
   const isOverlayHeader = currentView === "home" && !isAdminPage;
   const headerColor = isOverlayHeader ? "#fffaf3" : "#18212f";
 
-  function openCategory(category) {
-    setCurrentView("home");
-    setActiveCategory(category);
+function openCategory(category) {
+  if (currentView === "article") {
+    window.location.href = `/?category=${encodeURIComponent(category)}`;
+    return;
   }
 
-  function openAboutPage() {
-    setCurrentView("about");
-    setActiveCategory("About");
+  setCurrentView("home");
+  setActiveCategory(category);
+}
+
+function openAboutPage() {
+  if (currentView === "article") {
+    window.location.href = "/?view=about";
+    return;
   }
+
+  setCurrentView("about");
+  setActiveCategory("About");
+}
 
   function closeSearch() {
     setSearchQuery("");

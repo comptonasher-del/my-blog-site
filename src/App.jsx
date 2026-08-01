@@ -39,10 +39,14 @@ const DEFAULT_SITE_CONFIG = {
 
 export default function App() {
   const path = window.location.pathname;
+  const params = new URLSearchParams(window.location.search);
+  const initialView =
+    params.get("view") === "about" ? "about" : "home";
+  const initialCategory = params.get("category") || "Home";
   const isAdminPage = path === "/admin";
   const isPostPage = path.startsWith("/post/");
   const postId = isPostPage ? path.split("/post/")[1] : null;
-  const [currentView, setCurrentView] = useState("home");
+  const [currentView, setCurrentView] = useState(initialView);
 
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
@@ -63,7 +67,9 @@ useEffect(() => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(emptyPost());
 
-  const [activeCategory, setActiveCategory] = useState("Home");
+  const [activeCategory, setActiveCategory] = useState(
+    initialView === "about" ? "About" : initialCategory
+  );
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
@@ -367,10 +373,28 @@ featured: draft.featured || false,
 
     return (
       <div style={styles.page}>
-        <main style={styles.postPageLayout}>
-         <a href="/" style={styles.articleMastheadLink}>
-  From One to the Next
-</a>
+        <SiteHeader
+        currentView="article"
+        siteConfig={siteConfig}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        setCurrentView={setCurrentView}
+        searchOpen={searchOpen}
+        setSearchOpen={setSearchOpen}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isAdminPage={isAdminPage}
+        session={session}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        startNewPost={startNewPost}
+        signIn={signIn}
+        signOut={signOut}
+      />
+
+      <main style={styles.postPageLayout}>
 
        <article style={styles.articlePage}>
   <div style={styles.articleHeader}>
