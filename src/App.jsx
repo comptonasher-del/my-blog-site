@@ -137,6 +137,10 @@ const featuredPost =
 const remainingPosts = visiblePosts.filter(
   (post) => post.id !== featuredPost?.id
 );
+const displayedPosts =
+  activeCategory === "Home"
+    ? remainingPosts.slice(0, 4)
+    : remainingPosts;
 
  const selectedPost = posts.find(
   (post) => String(post.slug) === String(postId) || String(post.id) === String(postId)
@@ -472,11 +476,11 @@ featured: draft.featured || false,
             />
           )}
 
-          {remainingPosts.length > 0 && (
-            <h2 style={styles.sectionHeading}>Latest Articles</h2>
+          {displayedPosts.length > 0 && (
+            <h2 style={styles.sectionHeading}>Latest Writings</h2>
           )}
 
-          {remainingPosts.map((post) => (
+          {displayedPosts.map((post) => (
            <ArticleCard
   key={post.id}
   post={post}

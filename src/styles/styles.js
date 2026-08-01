@@ -237,8 +237,11 @@ editorButton: {
 
   posts: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-    gap: "28px",
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+    gap: "22px 18px",
+    width: "calc(100% - 48px)",
+    margin: "0 auto",
+    alignItems: "stretch",
   },
 
   sidebar: {
@@ -412,45 +415,62 @@ closeSearch: {
   cursor: "pointer",
   fontSize: "18px",
 },
-  sectionHeading: {
-    gridColumn: "1 / -1",
-    fontSize: "22px",
-    margin: "8px 0 -8px",
-    borderTop: "1px solid #eadfce",
-    paddingTop: "24px",
-  },
 
-  card: {
-  background: "#fffaf3",
-  border: "1px solid #eadfce",
-  borderRadius: "28px",
-  boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-  overflow: "hidden",
-  height: "fit-content",
-  cursor: "pointer",
-  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+sectionHeading: {
+  gridColumn: "1 / -1",
+  margin: "42px 0 2px",
+  padding: 0,
+  border: 0,
+  fontSize: "13px",
+  fontWeight: 700,
+  letterSpacing: "0.11em",
+  textTransform: "uppercase",
+  color: "#18212f",
 },
 
-  cardBody: {
-    padding: "24px",
-  },
+card: {
+  background: "#fffdf9",
+  border: "1px solid #e5dfd6",
+  borderRadius: "2px",
+  boxShadow: "none",
+  overflow: "hidden",
+  minWidth: 0,
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  cursor: "pointer",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+},
+
+cardBody: {
+  padding: "18px 16px 20px",
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+},
+  
 cardHover: {
-  background: "#fffaf3",
-  border: "1px solid #eadfce",
-  borderRadius: "28px",
-  boxShadow: "0 24px 60px rgba(31,41,51,0.12)",
+  background: "#fffdf9",
+  border: "1px solid #d8d0c5",
+  borderRadius: "2px",
+  boxShadow: "0 14px 36px rgba(24, 33, 47, 0.1)",
   overflow: "hidden",
-  height: "fit-content",
+  minWidth: 0,
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
   cursor: "pointer",
-  transform: "translateY(-3px)",
-  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+  transform: "translateY(-4px)",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
 },
-  postImage: {
-    width: "100%",
-    height: "220px",
-    objectFit: "cover",
-    display: "block",
-  },
+
+postImage: {
+  width: "100%",
+  aspectRatio: "16 / 10",
+  height: "auto",
+  objectFit: "cover",
+  display: "block",
+},
 
   previewImage: {
     width: "100%",
@@ -459,36 +479,43 @@ cardHover: {
     borderRadius: "18px",
   },
 
-  meta: {
-    color: "#71717a",
-    fontSize: "14px",
-    marginBottom: "10px",
-  },
+meta: {
+  color: "#8a8177",
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  marginBottom: "9px",
+},
 
-  postTitle: {
-    margin: "12px 0",
-    fontSize: "34px",
-    fontFamily: "'Libre Baskerville', Georgia, serif",
-    fontWeight: "800",
-    letterSpacing: "-0.03em",
-    lineHeight: 1.1,
-    color: "#1b2538",
-  },
+postTitle: {
+  margin: "0 0 10px",
+  fontSize: "22px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontWeight: 700,
+  letterSpacing: "-0.035em",
+  lineHeight: 1.15,
+  color: "#18212f",
+},
 
-  bodyText: {
-    whiteSpace: "pre-wrap",
-fontFamily: "Georgia, serif",
-  fontSize: "15px",
+bodyText: {
+  fontFamily: "Georgia, serif",
+  fontSize: "14px",
   lineHeight: 1.55,
-  color: "#6b7280",
-  margin: "0 0 14px",
-  },
+  color: "#68635d",
+  margin: "0 0 18px",
+},
 
-  readLink: {
-    color: "#18181b",
-    fontWeight: "bold",
-    textDecoration: "none",
-  },
+readLink: {
+  display: "inline-block",
+  marginTop: "auto",
+  color: "#18212f",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  textDecoration: "none",
+},
 
 markdownBody: {
   fontFamily: "'Source Serif 4', Georgia, serif",
