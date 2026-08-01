@@ -410,6 +410,7 @@ featured: draft.featured || false,
   return (
   <div style={styles.page}>
     <SiteHeader
+      currentView={currentView}      
       siteConfig={siteConfig}
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}

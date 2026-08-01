@@ -7,14 +7,55 @@ const styles = {
     fontFamily: "Inter, system-ui, sans-serif",
     padding: "0 0 40px",
   },
+
 hero: {
   width: "100%",
+  boxSizing: "border-box",
+},
+
+heroOverlay: {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  zIndex: 20,
+  padding: "28px 40px 64px",
+  background:
+    "linear-gradient(180deg, rgba(8, 14, 22, 0.58) 0%, rgba(8, 14, 22, 0) 100%)",
+},
+
+heroStandard: {
+  position: "relative",
+  padding: "28px 40px",
   background: "#f7f4ef",
   borderBottom: "1px solid rgba(31, 41, 51, 0.12)",
-  padding: "48px 24px 28px",
-  boxSizing: "border-box",
-  margin: "0 0 56px",
+  marginBottom: "40px",
 },
+
+headerInner: {
+  width: "100%",
+  maxWidth: "1320px",
+  margin: "0 auto",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "32px",
+  flexWrap: "wrap",
+},
+
+compactLogo: {
+  display: "grid",
+  border: 0,
+  padding: 0,
+  background: "transparent",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "15px",
+  fontWeight: 700,
+  lineHeight: 0.95,
+  letterSpacing: "-0.02em",
+  textAlign: "left",
+  cursor: "pointer",
+},
+
  title: {
   fontSize: "clamp(48px, 8vw, 104px)",
   lineHeight: 0.92,
@@ -206,54 +247,88 @@ editorButton: {
     marginTop: "28px",
   },
 
-  featuredCard: {
-    gridColumn: "1 / -1",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "32px",
-    alignItems: "center",
-    background: "#fffaf3",
-    border: "1px solid #eadfce",
-    borderRadius: "28px",
-    padding: "32px",
-    boxShadow: "0 18px 50px rgba(31, 41, 51, 0.07)",
-   cursor: "pointer",
-transition: "transform 0.15s ease, box-shadow 0.15s ease",
+featuredCard: {
+  gridColumn: "1 / -1",
+  width: "100vw",
+  marginLeft: "calc(50% - 50vw)",  
+  height: "clamp(560px, 72vh, 720px)",
+  display: "flex",
+  alignItems: "flex-end",
+  position: "relative",
+  boxSizing: "border-box",
+  backgroundColor: "#18212f",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  overflow: "hidden",
+  cursor: "pointer",
+  boxShadow: "0 30px 90px rgba(24, 33, 47, 0.18)",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
 },
-  featuredImage: {
-    width: "100%",
-    height: "260px",
-    objectFit: "cover",
-    display: "block",
-    borderRadius: "18px",
-  },
 
-  featuredMeta: {
-    fontSize: "14px",
-    fontWeight: "600",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#71717a",
-  },
+featuredContent: {
+  width: "100%",
+  maxWidth: "760px",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-end",
+  padding: "120px clamp(40px, 6vw, 76px) clamp(40px, 6vw, 76px)",
+  boxSizing: "border-box",
+},
 
-  featuredTitle: {
-    fontFamily: "'Libre Baskerville', Georgia, serif",
-    fontSize: "52px",
-    fontWeight: "800",
-    lineHeight: 1.05,
-    letterSpacing: "-0.04em",
-    margin: "12px 0 16px",
-    color: "#18181b",
-  },
+featuredContentLong: {
+  justifyContent: "center",
+  paddingTop: "170px",
+  paddingBottom: "48px",
+},
 
-  featuredDeck: {
+featuredMeta: {
+  fontSize: "12px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#d8cbb8",
+},
+
+featuredTitle: {
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(40px, 4.6vw, 68px)",
+  fontWeight: 700,
+  lineHeight: 1.02,
+  letterSpacing: "-0.045em",
+  margin: "18px 0 22px",
+  color: "#fffaf3",
+  textWrap: "balance",
+},
+
+featuredTitleLong: {
+  fontSize: "clamp(30px, 3.1vw, 46px)",
+  lineHeight: 0.98,
+  maxWidth: "640px",
+  margin: "12px 0 18px",
+},
+
+featuredDeck: {
   fontFamily: "Georgia, serif",
-  fontSize: "16px",
-  marginBottom: "20px",
-  fontStyle: "italic",
-  color: "#5f6368",
+  fontSize: "clamp(17px, 2vw, 20px)",
   lineHeight: 1.7,
+  maxWidth: "620px",
+  margin: "0 0 32px",
+  color: "rgba(255, 250, 243, 0.78)",
 },
+
+featuredReadLink: {
+  display: "inline-block",
+  color: "#fffaf3",
+  fontSize: "13px",
+  fontWeight: 700,
+  letterSpacing: "0.11em",
+  textTransform: "uppercase",
+  borderBottom: "1px solid rgba(255, 250, 243, 0.6)",
+  paddingBottom: "6px",
+},
+
 featuredCardHover: {
   gridColumn: "1 / -1",
   display: "grid",
@@ -277,46 +352,39 @@ masthead: {
 
 nav: {
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "flex-end",
   alignItems: "center",
   flexWrap: "wrap",
-  gap: "10px 28px",
-  marginTop: "36px",
-  paddingTop: "20px",
-  borderTop: "1px solid rgba(31, 41, 51, 0.12)",
-  fontSize: "13px",
-  fontWeight: 700,
-  letterSpacing: "0.11em",
-  textTransform: "uppercase",
+  gap: "12px 30px",
+  margin: 0,
+  padding: 0,
+  border: 0,
+  fontSize: "14px",
+  fontWeight: 600,
 },
 
 navLink: {
-  color: "#4c5562",
   textDecoration: "none",
   background: "transparent",
   border: 0,
   borderBottom: "1px solid transparent",
   cursor: "pointer",
   font: "inherit",
-  fontWeight: 700,
-  letterSpacing: "0.11em",
-  textTransform: "uppercase",
-  padding: "8px 0",
+  fontWeight: 600,
+  padding: "4px 0 6px",
 },
 
 navLinkActive: {
-  color: "#18212f",
-  borderBottom: "1px solid #18212f",
+  borderBottomWidth: "1px",
 },
 
 searchButton: {
   background: "transparent",
   border: 0,
   cursor: "pointer",
-  fontSize: "23px",
+  fontSize: "21px",
   lineHeight: 1,
-  padding: "4px 6px",
-  color: "#18212f",
+  padding: "0 4px",
 },
 
 searchWrapper: {

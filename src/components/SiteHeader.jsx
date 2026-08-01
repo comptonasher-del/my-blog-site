@@ -3,6 +3,7 @@ import styles from "../styles/styles";
 const NAV_ITEMS = ["Home", "Journal", "Essays", "Reviews"];
 
 export default function SiteHeader({
+  currentView,
   siteConfig,
   activeCategory,
   setActiveCategory,
@@ -21,6 +22,9 @@ export default function SiteHeader({
   signIn,
   signOut,
 }) {
+  const isOverlayHeader = currentView === "home" && !isAdminPage;
+  const headerColor = isOverlayHeader ? "#fffaf3" : "#18212f";
+
   function openCategory(category) {
     setCurrentView("home");
     setActiveCategory(category);
@@ -37,82 +41,112 @@ export default function SiteHeader({
   }
 
   return (
-    <header style={styles.hero}>
-      <div>
-        <div style={styles.masthead}>
-          <h1 style={styles.title}>{siteConfig.site_title}</h1>
+    <header
+      style={{
+        ...styles.hero,
+        ...(isOverlayHeader
+          ? styles.heroOverlay
+          : styles.heroStandard),
+      }}
+    >
+      <div style={styles.headerInner}>
+        <button
+          type="button"
+          aria-label={siteConfig.site_title}
+          style={{
+            ...styles.compactLogo,
+            color: headerColor,
+          }}
+          onClick={() => openCategory("Home")}
+        >
+          <span>FROM ONE TO</span>
+          <span>THE NEXT</span>
+        </button>
 
-          <p style={styles.subtitle}>{siteConfig.site_tagline}</p>
-
-          <nav style={styles.nav}>
-            {NAV_ITEMS.map((item) => (
-              <button
-                key={item}
-                style={{
-                  ...styles.navLink,
-                  ...(activeCategory === item
-                    ? styles.navLinkActive
-                    : {}),
-                }}
-                onClick={() => openCategory(item)}
-              >
-                {item}
-              </button>
-            ))}
-
+        <nav style={styles.nav}>
+          {NAV_ITEMS.map((item) => (
             <button
+              key={item}
               style={{
                 ...styles.navLink,
-                ...(activeCategory === "About"
-                  ? styles.navLinkActive
-                  : {}),
+                color: headerColor,
+                borderBottomColor:
+                  activeCategory === item
+                    ? headerColor
+                    : "transparent",
               }}
-              onClick={openAboutPage}
+              onClick={() => openCategory(item)}
             >
-              About
+              {item}
             </button>
+          ))}
 
-            <button
-              style={styles.searchButton}
-              onClick={() => setSearchOpen(!searchOpen)}
-            >
-              ⌕
-            </button>
-          </nav>
+          <button
+            style={{
+              ...styles.navLink,
+              color: headerColor,
+              borderBottomColor:
+                activeCategory === "About"
+                  ? headerColor
+                  : "transparent",
+            }}
+            onClick={openAboutPage}
+          >
+            About
+          </button>
 
-          {searchOpen && (
-            <div style={styles.searchWrapper}>
-              <input
-                autoFocus
-                style={styles.searchInput}
-                placeholder="Search articles..."
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-
-              <button style={styles.closeSearch} onClick={closeSearch}>
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
-
-        {siteConfig.homepage_intro && (
-          <p style={styles.homepageIntro}>
-            {siteConfig.homepage_intro}
-          </p>
-        )}
+          <button
+            aria-label="Search articles"
+            style={{
+              ...styles.searchButton,
+              color: headerColor,
+            }}
+            onClick={() => setSearchOpen(!searchOpen)}
+          >
+            ⌕
+          </button>
+        </nav>
       </div>
+
+      {searchOpen && (
+        <div style={styles.searchWrapper}>
+          <input
+            autoFocus
+            style={styles.searchInput}
+            placeholder="Search articles..."
+            value={searchQuery}
+            onChange={(event) =>
+              setSearchQuery(event.target.value)
+            }
+          />
+
+          <button
+            style={{
+              ...styles.closeSearch,
+              color: headerColor,
+            }}
+            onClick={closeSearch}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {isAdminPage && (
         <div style={styles.adminHeaderControls}>
           {session ? (
             <>
-              <button style={styles.primaryButton} onClick={startNewPost}>
+              <button
+                style={styles.primaryButton}
+                onClick={startNewPost}
+              >
                 + New post
               </button>
 
-              <button style={styles.secondaryButton} onClick={signOut}>
+              <button
+                style={styles.secondaryButton}
+                onClick={signOut}
+              >
                 Sign out
               </button>
             </>
@@ -123,7 +157,9 @@ export default function SiteHeader({
                 type="email"
                 placeholder="Email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
               />
 
               <input
@@ -131,10 +167,15 @@ export default function SiteHeader({
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
               />
 
-              <button style={styles.primaryButton} onClick={signIn}>
+              <button
+                style={styles.primaryButton}
+                onClick={signIn}
+              >
                 Sign in
               </button>
             </>

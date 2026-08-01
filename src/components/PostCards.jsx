@@ -7,29 +7,55 @@ export function FeaturedArticle({
   onEdit,
   onDelete,
 }) {
+  const isLongTitle = post.title.length > 55;
   return (
     <article
-      style={styles.featuredCard}
+      style={{
+        ...styles.featuredCard,
+        ...(post.image
+          ? {
+              backgroundImage: `
+                linear-gradient(
+                  90deg,
+                  rgba(15, 23, 34, 0.92) 0%,
+                  rgba(15, 23, 34, 0.68) 48%,
+                  rgba(15, 23, 34, 0.18) 100%
+                ),
+                url("${post.image}")
+              `,
+            }
+          : {}),
+      }}
       onClick={() => {
         window.location.href = `/post/${post.slug || post.id}`;
       }}
     >
-      {post.image && (
-        <img
-          src={post.image}
-          alt={post.title}
-          style={styles.featuredImage}
-        />
-      )}
+      <div
+  	style={{
+    	  ...styles.featuredContent,
+    	  ...(isLongTitle ? styles.featuredContentLong : {}),
+  	}}
+      >
+        <div style={styles.featuredMeta}>
+          {post.type} · {post.date}
+  	</div>
 
-      <div style={styles.cardBody}>
-        <div style={styles.featuredMeta}>{post.type}</div>
-
-        <h2 style={styles.featuredTitle}>{post.title}</h2>
+  	<h2
+    	  style={{
+      	    ...styles.featuredTitle,
+      	    ...(isLongTitle ? styles.featuredTitleLong : {}),
+    	  }}
+  	>
+    	  {post.title}
+  	</h2>
 
         <p style={styles.featuredDeck}>
           {post.excerpt || `${(post.body || "").slice(0, 220)}...`}
         </p>
+
+        <span style={styles.featuredReadLink}>
+          Read article →
+        </span>
 
         {isAdmin && (
           <AdminPostButtons
