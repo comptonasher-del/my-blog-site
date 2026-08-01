@@ -42,26 +42,6 @@ const DEFAULT_SITE_CONFIG = {
 };
 
 
-function MarkdownContent({ children }) {
-  return (
-    <div style={styles.markdownBody} className="article-body">
-      <ReactMarkdown
-        components={{
-          h1: ({ children }) => <h1 style={styles.markdownH1}>{children}</h1>,
-          h2: ({ children }) => <h2 style={styles.markdownH2}>{children}</h2>,
-          ul: ({ children }) => <ul style={styles.markdownList}>{children}</ul>,
-          li: ({ children }) => <li style={styles.markdownListItem}>{children}</li>,
-          blockquote: ({ children }) => (
-            <blockquote style={styles.markdownQuote}>{children}</blockquote>
-          ),
-        }}
-      >
-        {children || ""}
-      </ReactMarkdown>
-    </div>
-  );
-}
-
 export default function App() {
   const path = window.location.pathname;
   const isAdminPage = path === "/admin";
