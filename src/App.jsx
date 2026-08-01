@@ -140,7 +140,7 @@ const remainingPosts = visiblePosts.filter(
  const selectedPost = posts.find(
   (post) => String(post.slug) === String(postId) || String(post.id) === String(postId)
 );
-const [cardHovered, setCardHovered] = useState(null);
+
 useEffect(() => {
   if (isPostPage && selectedPost?.title) {
     document.title = `${selectedPost.title} | From One to the Next`;
