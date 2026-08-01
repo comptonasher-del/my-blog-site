@@ -17,6 +17,7 @@ import {
   AuthorBlock,
   ShareButton,
 } from "./components/ArticleDetails";
+import Footer from "./components/Footer";
 
 const POST_TYPES = [
   "Op-Ed",
@@ -619,9 +620,7 @@ featured: draft.featured || false,
         />
       )}
 
-<footer style={styles.footer}>
-  <p>© {new Date().getFullYear()} From One to the Next. All rights reserved.</p>
-</footer>
+<Footer />
 
     </div>
   );
