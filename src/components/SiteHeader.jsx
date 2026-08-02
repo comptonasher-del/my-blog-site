@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/styles";
 
 const NAV_ITEMS = ["Home", "Journal", "Essays", "Reviews"];
@@ -24,6 +24,11 @@ export default function SiteHeader({
   signOut,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+
+  const lastScrollY = useRef(0);
+  const upwardScrollDistance = useRef(0);
 
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
@@ -33,8 +38,80 @@ export default function SiteHeader({
     };
   }, [mobileMenuOpen]);
 
-  const isOverlayHeader = currentView === "home" && !isAdminPage;
-  const headerColor = isOverlayHeader ? "#fffaf3" : "#18212f";
+  useEffect(() => {
+    const hideHeaderPoint = 72;
+    const solidHeaderStart = 160;
+    const solidHeaderReset = 24;
+    const upwardDistanceNeeded = 12;
+
+    function handleScroll() {
+      const currentScrollY = Math.max(window.scrollY, 0);
+
+      const scrollDifference =
+        currentScrollY - lastScrollY.current;
+
+      const hasScrolledPastHidePoint =
+        currentScrollY > hideHeaderPoint;
+
+      // Use separate thresholds to prevent flickering
+      // between the transparent and cream header.
+      if (currentScrollY >= solidHeaderStart) {
+        setHeaderScrolled(true);
+      } else if (currentScrollY <= solidHeaderReset) {
+        setHeaderScrolled(false);
+      }
+
+      if (
+        mobileMenuOpen ||
+        searchOpen ||
+        !hasScrolledPastHidePoint
+      ) {
+        setHeaderVisible(true);
+        upwardScrollDistance.current = 0;
+      } else if (scrollDifference > 2) {
+        setHeaderVisible(false);
+        upwardScrollDistance.current = 0;
+      } else if (scrollDifference < 0) {
+        upwardScrollDistance.current += Math.abs(
+          scrollDifference
+        );
+
+        if (
+          upwardScrollDistance.current >=
+          upwardDistanceNeeded
+        ) {
+          setHeaderVisible(true);
+          upwardScrollDistance.current = 0;
+        }
+      }
+
+      lastScrollY.current = currentScrollY;
+    }
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [mobileMenuOpen, searchOpen]);  
+
+
+  const isOverlayHeader =
+    currentView === "home" && !isAdminPage;
+
+  const useSolidHeader =
+    headerScrolled ||
+    mobileMenuOpen ||
+    searchOpen ||
+    !isOverlayHeader;
+
+  const headerColor = useSolidHeader
+    ? "#18212f"
+    : "#fffaf3";  
 
 function openCategory(category) {
   setMobileMenuOpen(false);
@@ -78,11 +155,20 @@ function openAboutPage() {
 
   return (
     <header
+      className={`smart-site-header ${
+        headerScrolled
+          ? "smart-site-header-scrolled"
+          : ""
+      } ${
+        headerVisible
+          ? "smart-site-header-visible"
+          : "smart-site-header-hidden"
+      }`}
       style={{
         ...styles.hero,
-        ...(isOverlayHeader
-          ? styles.heroOverlay
-          : styles.heroStandard),
+        ...(useSolidHeader
+          ? styles.heroStandard
+          : styles.heroOverlay),
       }}
     >
       <div style={styles.headerInner}>

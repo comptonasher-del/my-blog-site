@@ -202,3 +202,35 @@ body {
     display: none;
   }
 }
+
+.smart-site-header {
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
+  will-change: transform;
+}
+
+.smart-site-header-scrolled {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 120;
+  background: #fffaf3 !important;
+  box-shadow: 0 8px 28px rgba(24, 33, 47, 0.1);
+}
+
+.smart-site-header-visible {
+  transform: translateY(0);
+}
+
+.smart-site-header-hidden {
+  transform: translateY(-110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smart-site-header {
+    transition: none;
+  }
+}

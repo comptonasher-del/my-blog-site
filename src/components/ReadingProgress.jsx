@@ -60,7 +60,7 @@ export default function ReadingProgress() {
         top: 0,
         left: 0,
         width: "100%",
-        height: "3px",
+        height: "4px",
         background: "rgba(24, 33, 47, 0.12)",
         zIndex: 1000,
         pointerEvents: "none",
@@ -70,7 +70,7 @@ export default function ReadingProgress() {
         style={{
           width: `${progress}%`,
           height: "100%",
-          background: "#c9a978",
+          background: "#b88954",
           transition: "width 80ms linear",
         }}
       />
