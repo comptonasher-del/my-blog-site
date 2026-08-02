@@ -650,16 +650,13 @@ featured: draft.featured || false,
                           }
                         : {}),
                     }}
-                    onClick={() => {
-                      setActiveCategory(topic.label);
 
-                      window.scrollTo({
-                        top: 0,
-                        behavior: "smooth",
-                      });
+                    onClick={() => {
+  		      window.location.assign(
+                        `/?category=${encodeURIComponent(topic.label)}`
+                      );
                     }}
                   >
-
                     <div
   		      className="topic-card-content"
   		      style={styles.topicCardContent}
