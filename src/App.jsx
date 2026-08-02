@@ -96,6 +96,42 @@ useEffect(() => {
     loadSiteConfig();
   }, []);
 
+  useEffect(() => {
+    function handlePopState() {
+      const nextParams = new URLSearchParams(
+        window.location.search
+      );
+
+      const nextView =
+        nextParams.get("view") === "about"
+          ? "about"
+          : "home";
+
+      const nextCategory =
+        nextParams.get("category") || "Home";
+
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto",
+      });
+
+      setCurrentView(nextView);
+      setActiveCategory(
+        nextView === "about" ? "About" : nextCategory
+      );
+    }
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener(
+        "popstate",
+        handlePopState
+      );
+    };
+  }, []);
+
 const visiblePosts = useMemo(() => {
   let filtered = [...posts].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
@@ -650,13 +686,25 @@ featured: draft.featured || false,
                           }
                         : {}),
                     }}
-
+                    
                     onClick={() => {
-  		      window.location.assign(
+                      window.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: "auto",
+                      });
+
+                      window.history.pushState(
+                        {},
+                        "",
                         `/?category=${encodeURIComponent(topic.label)}`
                       );
-                    }}
-                  >
+
+                      setCurrentView("home");
+                      setActiveCategory(topic.label);
+                    }} 
+                    
+                 >
                     <div
   		      className="topic-card-content"
   		      style={styles.topicCardContent}
