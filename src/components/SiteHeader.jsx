@@ -64,6 +64,18 @@ function openAboutPage() {
     setSearchOpen(false);
   }
 
+
+  function openSubscribe() {
+  setMobileMenuOpen(false);
+
+  window.requestAnimationFrame(() => {
+    document.getElementById("subscribe")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+}
+
   return (
     <header
       style={{
@@ -128,8 +140,20 @@ function openAboutPage() {
             onClick={() => setSearchOpen(!searchOpen)}
           >
             ⌕
+        </button>
+
+        <button
+          style={{
+            ...styles.headerSubscribeButton,
+            color: headerColor,
+            borderColor: headerColor,
+          }}
+          onClick={openSubscribe}
+        >
+          Subscribe
           </button>
-        </nav>
+	  </nav>
+
         <button
           type="button"
           className="mobile-menu-button"
@@ -186,7 +210,18 @@ function openAboutPage() {
         >
           Search
         </button>
-      </nav>
+
+        <button
+          style={{
+            ...styles.mobileMenuLink,
+            color: "#18212f",
+          }}
+          onClick={openSubscribe}
+        >
+          Subscribe
+        </button>
+
+        </nav>
 
 
       {searchOpen && (

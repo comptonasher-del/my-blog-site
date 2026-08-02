@@ -158,7 +158,9 @@ useEffect(() => {
     incrementPostMetric(selectedPost.id, "views");
   }
 }, [isPostPage, selectedPost?.id, session]);
-async function incrementPostMetric(postId, field) {
+
+
+  async function incrementPostMetric(postId, field) {
   const { error } = await supabase.rpc("increment_post_metric", {
     post_id_input: postId,
     field_name_input: field,
@@ -431,6 +433,8 @@ featured: draft.featured || false,
   />
 </article>
         </main>
+
+        <Footer />
       </div>
     );
   }

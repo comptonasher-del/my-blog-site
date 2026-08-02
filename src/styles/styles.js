@@ -392,6 +392,18 @@ searchButton: {
   padding: "0 4px",
 },
 
+headerSubscribeButton: {
+  border: "1px solid",
+  background: "transparent",
+  padding: "10px 16px",
+  fontFamily: "inherit",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
+
 mobileMenuButton: {
   display: "none",
   border: 0,
@@ -732,6 +744,151 @@ shareMenuItem: {
   cursor: "pointer",
   whiteSpace: "nowrap",
 },
+
+footer: {
+  width: "100%",
+  marginTop: "96px",
+  padding: "clamp(56px, 7vw, 88px) 24px 32px",
+  boxSizing: "border-box",
+  background: "#18212f",
+  color: "#fffaf3",
+},
+
+footerInner: {
+  width: "100%",
+  maxWidth: "1180px",
+  margin: "0 auto",
+},
+
+footerNewsletterGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: "48px 80px",
+  alignItems: "end",
+  paddingBottom: "52px",
+},
+
+footerEyebrow: {
+  margin: "0 0 18px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.16em",
+  textTransform: "uppercase",
+  color: "#cbbda8",
+},
+
+footerHeading: {
+  maxWidth: "620px",
+  margin: "0 0 20px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(38px, 5vw, 64px)",
+  lineHeight: 1.02,
+  letterSpacing: "-0.045em",
+  color: "#fffaf3",
+},
+
+footerDescription: {
+  maxWidth: "580px",
+  margin: 0,
+  fontFamily: "Georgia, serif",
+  fontSize: "17px",
+  lineHeight: 1.7,
+  color: "rgba(255, 250, 243, 0.7)",
+},
+
+footerForm: {
+  width: "100%",
+  maxWidth: "500px",
+  justifySelf: "end",
+},
+
+footerLabel: {
+  display: "block",
+  marginBottom: "10px",
+  fontSize: "12px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "#fffaf3",
+},
+
+footerInputRow: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px",
+},
+
+footerEmailInput: {
+  flex: "1 1 240px",
+  minWidth: 0,
+  boxSizing: "border-box",
+  border: "1px solid rgba(255, 250, 243, 0.32)",
+  borderRadius: 0,
+  padding: "16px 18px",
+  background: "rgba(255, 255, 255, 0.06)",
+  color: "#fffaf3",
+  fontFamily: "inherit",
+  fontSize: "16px",
+  outline: "none",
+},
+
+footerSubscribeButton: {
+  flex: "0 0 auto",
+  border: "1px solid #fffaf3",
+  borderRadius: 0,
+  padding: "16px 24px",
+  background: "#fffaf3",
+  color: "#18212f",
+  fontFamily: "inherit",
+  fontSize: "12px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
+
+footerFinePrint: {
+  margin: "12px 0 0",
+  fontSize: "12px",
+  lineHeight: 1.5,
+  color: "rgba(255, 250, 243, 0.52)",
+},
+
+footerMessage: {
+  margin: "14px 0 0",
+  fontSize: "14px",
+  color: "#d8cbb8",
+},
+
+footerMessageError: {
+  color: "#f2b8b5",
+},
+
+footerBottom: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  flexWrap: "wrap",
+  gap: "24px",
+  paddingTop: "30px",
+  borderTop: "1px solid rgba(255, 250, 243, 0.16)",
+},
+
+footerBrand: {
+  display: "grid",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "16px",
+  fontWeight: 700,
+  lineHeight: 0.95,
+  letterSpacing: "-0.025em",
+},
+
+footerCopyright: {
+  margin: 0,
+  fontSize: "12px",
+  color: "rgba(255, 250, 243, 0.52)",
+},
+
 };
 
 export default styles;
