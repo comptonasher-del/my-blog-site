@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/styles";
+import SearchOverlay from "./SearchOverlay";
 
 const NAV_ITEMS = ["Home", "Journal", "Essays", "Reviews"];
 
 export default function SiteHeader({
   currentView,
   siteConfig,
+  posts,
   activeCategory,
   setActiveCategory,
   setCurrentView,
@@ -223,7 +225,7 @@ function openAboutPage() {
               ...styles.searchButton,
               color: headerColor,
             }}
-            onClick={() => setSearchOpen(!searchOpen)}
+            onClick={() => setSearchOpen(true)}
           >
             ⌕
         </button>
@@ -290,7 +292,7 @@ function openAboutPage() {
             color: "#18212f",
           }}
           onClick={() => {
-            setSearchOpen(!searchOpen);
+            setSearchOpen(true);
             setMobileMenuOpen(false);
           }}
         >
@@ -309,30 +311,14 @@ function openAboutPage() {
 
         </nav>
 
-
-      {searchOpen && (
-        <div style={styles.searchWrapper}>
-          <input
-            autoFocus
-            style={styles.searchInput}
-            placeholder="Search articles..."
-            value={searchQuery}
-            onChange={(event) =>
-              setSearchQuery(event.target.value)
-            }
+        {searchOpen && (
+          <SearchOverlay
+            posts={posts}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onClose={closeSearch}
           />
-
-          <button
-            style={{
-              ...styles.closeSearch,
-              color: headerColor,
-            }}
-            onClick={closeSearch}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+        )}
 
       {isAdminPage && (
         <div style={styles.adminHeaderControls}>

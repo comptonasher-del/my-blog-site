@@ -1055,6 +1055,147 @@ topicCardLink: {
   letterSpacing: "0.08em",
   textTransform: "uppercase",
 },
+
+searchOverlayBackdrop: {
+  position: "fixed",
+  inset: 0,
+  zIndex: 500,
+  display: "grid",
+  placeItems: "start center",
+  padding: "clamp(18px, 5vw, 64px)",
+  boxSizing: "border-box",
+  overflowY: "auto",
+  background: "rgba(15, 23, 34, 0.78)",
+  backdropFilter: "blur(8px)",
+},
+
+searchOverlayPanel: {
+  width: "100%",
+  maxWidth: "900px",
+  marginTop: "clamp(20px, 6vh, 70px)",
+  padding: "clamp(24px, 5vw, 52px)",
+  boxSizing: "border-box",
+  background: "#fffaf3",
+  boxShadow:
+    "0 30px 90px rgba(15, 23, 34, 0.28)",
+},
+
+searchOverlayHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "24px",
+  marginBottom: "30px",
+},
+
+searchOverlayEyebrow: {
+  margin: "0 0 10px",
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+searchOverlayTitle: {
+  margin: 0,
+  fontFamily:
+    "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(28px, 4vw, 44px)",
+  lineHeight: 1.1,
+  letterSpacing: "-0.04em",
+  color: "#18212f",
+},
+
+searchOverlayClose: {
+  flex: "0 0 auto",
+  border: 0,
+  padding: "6px",
+  background: "transparent",
+  color: "#18212f",
+  fontSize: "22px",
+  cursor: "pointer",
+},
+
+searchOverlayInput: {
+  width: "100%",
+  boxSizing: "border-box",
+  border: 0,
+  borderBottom: "2px solid #18212f",
+  borderRadius: 0,
+  padding: "14px 0",
+  background: "transparent",
+  color: "#18212f",
+  fontFamily:
+    "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(20px, 3vw, 30px)",
+  outline: "none",
+},
+
+searchOverlayResults: {
+  display: "grid",
+  marginTop: "28px",
+},
+
+searchOverlayMessage: {
+  margin: 0,
+  padding: "28px 0",
+  fontSize: "15px",
+  color: "#6b6258",
+},
+
+searchResult: {
+  display: "grid",
+  gridTemplateColumns: "120px minmax(0, 1fr)",
+  gap: "20px",
+  padding: "20px 0",
+  borderBottom:
+    "1px solid rgba(24, 33, 47, 0.14)",
+  color: "#18212f",
+  textDecoration: "none",
+},
+
+searchResultImage: {
+  width: "120px",
+  height: "88px",
+  objectFit: "cover",
+},
+
+searchResultImagePlaceholder: {
+  width: "120px",
+  height: "88px",
+  background: "#d8d0c5",
+},
+
+searchResultContent: {
+  minWidth: 0,
+},
+
+searchResultMeta: {
+  margin: "0 0 7px",
+  fontSize: "9px",
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+searchResultTitle: {
+  margin: "0 0 7px",
+  fontFamily:
+    "'Libre Baskerville', Georgia, serif",
+  fontSize: "21px",
+  lineHeight: 1.2,
+  letterSpacing: "-0.025em",
+  color: "#18212f",
+},
+
+searchResultExcerpt: {
+  margin: 0,
+  fontSize: "13px",
+  lineHeight: 1.5,
+  color: "#6b6258",
+},
 };
 
 export default styles;

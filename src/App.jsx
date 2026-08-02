@@ -473,6 +473,7 @@ featured: draft.featured || false,
 	<SiteHeader
         currentView="article"
         siteConfig={siteConfig}
+        posts={posts}
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
         setCurrentView={setCurrentView}
@@ -602,6 +603,7 @@ featured: draft.featured || false,
     <SiteHeader
       currentView={currentView}      
       siteConfig={siteConfig}
+      posts={posts}
       activeCategory={activeCategory}
       setActiveCategory={setActiveCategory}
       setCurrentView={setCurrentView}

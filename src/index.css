@@ -234,3 +234,25 @@ body {
     transition: none;
   }
 }
+
+@media (max-width: 768px) {
+  .search-overlay-panel {
+    margin-top: 0 !important;
+    padding: 24px 20px !important;
+  }
+
+  .search-result-row {
+    grid-template-columns: 82px minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .search-result-row img,
+  .search-result-row > div:first-child {
+    width: 82px !important;
+    height: 82px !important;
+  }
+
+  .search-result-excerpt {
+    display: none;
+  }
+}
