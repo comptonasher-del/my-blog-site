@@ -1196,6 +1196,337 @@ searchResultExcerpt: {
   lineHeight: 1.5,
   color: "#6b6258",
 },
+
+aboutPage: {
+  width: "100%",
+  maxWidth: "1180px",
+  margin: "0 auto",
+  padding: "80px 24px 0",
+  boxSizing: "border-box",
+  color: "#18212f",
+},
+
+aboutHero: {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1.3fr) minmax(280px, 0.7fr)",
+  gap: "clamp(48px, 9vw, 120px)",
+  alignItems: "end",
+  padding: "34px 0 96px",
+},
+
+aboutEyebrow: {
+  margin: "0 0 16px",
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.15em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+aboutHeroTitle: {
+  maxWidth: "790px",
+  margin: 0,
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(45px, 7vw, 82px)",
+  lineHeight: 1,
+  letterSpacing: "-0.055em",
+  color: "#18212f",
+},
+
+aboutHeroCopy: {
+  display: "grid",
+  gap: "18px",
+  fontFamily: "Georgia, serif",
+  fontSize: "17px",
+  lineHeight: 1.75,
+  color: "#5f584f",
+},
+
+aboutPurposeSection: {
+  padding: "90px 0",
+  borderTop: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutSectionTitle: {
+  maxWidth: "820px",
+  margin: "0 0 30px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(34px, 5vw, 58px)",
+  lineHeight: 1.08,
+  letterSpacing: "-0.045em",
+  color: "#18212f",
+},
+
+aboutPurposeCopy: {
+  maxWidth: "720px",
+  display: "grid",
+  gap: "20px",
+  fontFamily: "Georgia, serif",
+  fontSize: "18px",
+  lineHeight: 1.8,
+  color: "#5f584f",
+},
+
+aboutPrinciplesGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  borderTop: "1px solid rgba(24, 33, 47, 0.16)",
+  borderBottom: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutPrinciple: {
+  padding: "48px 36px 54px 0",
+},
+
+aboutPrincipleNumber: {
+  margin: "0 0 40px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  color: "#a28d74",
+},
+
+aboutPrincipleTitle: {
+  margin: "0 0 18px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "27px",
+  lineHeight: 1.15,
+  color: "#18212f",
+},
+
+aboutPrincipleText: {
+  margin: 0,
+  fontSize: "15px",
+  lineHeight: 1.75,
+  color: "#6b6258",
+},
+
+aboutWritingSection: {
+  padding: "100px 0",
+},
+
+aboutValuesGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: "0 64px",
+  marginTop: "54px",
+  borderTop: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutValue: {
+  padding: "34px 0",
+  borderBottom: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutValueTitle: {
+  margin: "0 0 12px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "22px",
+  color: "#18212f",
+},
+
+aboutValueText: {
+  maxWidth: "500px",
+  margin: 0,
+  fontSize: "15px",
+  lineHeight: 1.7,
+  color: "#6b6258",
+},
+
+aboutStorySection: {
+  maxWidth: "820px",
+  margin: "0 auto",
+  padding: "76px 0",
+  borderTop: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutStoryContent: {
+  fontFamily: "Georgia, serif",
+  fontSize: "18px",
+  lineHeight: 1.8,
+  color: "#4f4a44",
+},
+
+aboutTeamSection: {
+  padding: "100px 0",
+  borderTop: "1px solid rgba(24, 33, 47, 0.16)",
+},
+
+aboutTeamHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: "30px",
+  marginBottom: "72px",
+},
+
+aboutAdminButton: {
+  flex: "0 0 auto",
+  border: "1px solid #18212f",
+  padding: "12px 18px",
+  background: "#18212f",
+  color: "#fffaf3",
+  fontFamily: "inherit",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
+
+aboutTeamGroup: {
+  marginTop: "64px",
+},
+
+aboutTeamGroupTitle: {
+  margin: "0 0 24px",
+  paddingBottom: "14px",
+  borderBottom: "1px solid rgba(24, 33, 47, 0.16)",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+aboutTeamGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: "48px 28px",
+},
+
+aboutTeamCard: {
+  minWidth: 0,
+},
+
+aboutTeamImage: {
+  display: "block",
+  width: "100%",
+  aspectRatio: "4 / 5",
+  objectFit: "cover",
+  background: "#d8d0c5",
+},
+
+aboutTeamPlaceholder: {
+  display: "grid",
+  placeItems: "center",
+  width: "100%",
+  aspectRatio: "4 / 5",
+  background: "#d8d0c5",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(42px, 6vw, 72px)",
+  color: "#817568",
+},
+
+aboutTeamCardBody: {
+  paddingTop: "22px",
+},
+
+aboutTeamRole: {
+  margin: "0 0 8px",
+  fontSize: "9px",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+aboutTeamName: {
+  margin: "0 0 14px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "26px",
+  lineHeight: 1.15,
+  color: "#18212f",
+},
+
+aboutTeamBio: {
+  margin: 0,
+  fontSize: "14px",
+  lineHeight: 1.7,
+  color: "#6b6258",
+},
+
+aboutEditButton: {
+  marginTop: "18px",
+  border: "1px solid #18212f",
+  padding: "9px 14px",
+  background: "transparent",
+  color: "#18212f",
+  fontFamily: "inherit",
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
+
+aboutClosingSection: {
+  margin: "20px -24px 0",
+  padding: "clamp(64px, 9vw, 108px) 24px",
+  boxSizing: "border-box",
+  background: "#18212f",
+  color: "#fffaf3",
+  textAlign: "center",
+},
+
+aboutClosingEyebrow: {
+  margin: "0 0 18px",
+  fontSize: "10px",
+  fontWeight: 700,
+  letterSpacing: "0.15em",
+  textTransform: "uppercase",
+  color: "#cbbda8",
+},
+
+aboutClosingTitle: {
+  maxWidth: "820px",
+  margin: "0 auto 24px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(36px, 6vw, 66px)",
+  lineHeight: 1.05,
+  letterSpacing: "-0.05em",
+},
+
+aboutClosingText: {
+  maxWidth: "650px",
+  margin: "0 auto 30px",
+  fontSize: "16px",
+  lineHeight: 1.7,
+  color: "rgba(255, 250, 243, 0.7)",
+},
+
+aboutClosingActions: {
+  display: "flex",
+  justifyContent: "center",
+  flexWrap: "wrap",
+  gap: "12px",
+},
+
+aboutPrimaryLink: {
+  display: "inline-block",
+  padding: "13px 20px",
+  border: "1px solid #fffaf3",
+  background: "#fffaf3",
+  color: "#18212f",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  textDecoration: "none",
+},
+
+aboutSecondaryButton: {
+  padding: "13px 20px",
+  border: "1px solid rgba(255, 250, 243, 0.7)",
+  background: "transparent",
+  color: "#fffaf3",
+  fontFamily: "inherit",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
 };
 
 export default styles;

@@ -256,3 +256,27 @@ body {
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .about-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 34px !important;
+  }
+
+  .about-principles-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .about-values-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .about-team-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .about-cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
