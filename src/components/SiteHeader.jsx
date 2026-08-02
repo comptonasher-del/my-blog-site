@@ -155,7 +155,7 @@ function openAboutPage() {
   });
 }
 
-  return (
+  return (   
     <header
       className={`smart-site-header ${
         headerScrolled
@@ -165,6 +165,10 @@ function openAboutPage() {
         headerVisible
           ? "smart-site-header-visible"
           : "smart-site-header-hidden"
+      } ${
+        mobileMenuOpen
+          ? "smart-site-header-menu-open"
+          : ""
       }`}
       style={{
         ...styles.hero,
@@ -172,7 +176,9 @@ function openAboutPage() {
           ? styles.heroStandard
           : styles.heroOverlay),
       }}
-    >
+    >  
+
+
       <div style={styles.headerInner}>
         <button
           type="button"
