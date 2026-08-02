@@ -144,3 +144,61 @@ body {
   font-family: "Libre Baskerville", Georgia, serif;
   font-weight: 700;
 }
+
+@media (max-width: 768px) {
+  .article-card {
+    display: grid !important;
+    grid-template-columns: 112px minmax(0, 1fr);
+    min-height: 145px;
+    overflow: hidden;
+  }
+
+  .article-card-no-image {
+    grid-template-columns: 1fr;
+  }
+
+  .article-card-image {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 145px;
+    object-fit: cover;
+    border-radius: 0 !important;
+  }
+
+  .article-card-body {
+    min-width: 0;
+    padding: 15px 16px !important;
+  }
+
+  .article-card-meta {
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  .article-card-title {
+    margin: 7px 0 12px !important;
+    font-size: 19px !important;
+    line-height: 1.15 !important;
+  }
+
+  .article-card-excerpt {
+    display: none;
+  }
+
+  .topic-card {
+    min-height: 150px !important;
+  }
+
+  .topic-card-content {
+    padding: 20px !important;
+  }
+
+  .topic-card-label {
+    margin-bottom: 8px !important;
+    font-size: 26px !important;
+  }
+
+  .topic-card-description {
+    display: none;
+  }
+}

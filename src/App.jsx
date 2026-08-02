@@ -24,6 +24,7 @@ import PostEditorModal from "./components/PostEditorModal";
 import AboutPage from "./components/AboutPage";
 import SiteHeader from "./components/SiteHeader";
 import ReadingProgress from "./components/ReadingProgress";
+import { getReadingTime } from "./utils/readingTime";
 
 const DEFAULT_SITE_CONFIG = {
   site_title: "From One to the Next",
@@ -143,9 +144,60 @@ const displayedPosts =
     ? remainingPosts.slice(0, 4)
     : remainingPosts;
 
+const topicCards = [
+  {
+    label: "Journal",
+    postType: "Journal",
+    description:
+      "Personal stories and reflections on following Jesus in everyday life.",
+  },
+  {
+    label: "Essays",
+    postType: "Op-Ed",
+    description:
+      "Thoughtful perspectives on faith, culture, and the questions shaping our lives.",
+  },
+  {
+    label: "Reviews",
+    postType: "Book Review",
+    description:
+      "Books, ideas, and culture considered through a Christian lens.",
+  },
+].map((topic) => {
+  const matchingPost = posts.find(
+    (post) => post.type === topic.postType && post.image
+  );
+
+  return {
+    ...topic,
+    image: matchingPost?.image || featuredPost?.image || "",
+  };
+});
+
  const selectedPost = posts.find(
-  (post) => String(post.slug) === String(postId) || String(post.id) === String(postId)
+  (post) => String(post.slug) === String(postId) || 
+  String(post.id) === String(postId)
+ );
+
+const selectedPostReadTime = getReadingTime(
+  selectedPost?.body || ""
 );
+
+
+const relatedPosts = selectedPost
+  ? [
+      ...posts.filter(
+        (post) =>
+          post.id !== selectedPost.id &&
+          post.type === selectedPost.type
+      ),
+      ...posts.filter(
+        (post) =>
+          post.id !== selectedPost.id &&
+          post.type !== selectedPost.type
+      ),
+    ].slice(0, 3)
+  : [];
 
 useEffect(() => {
   if (isPostPage && selectedPost?.title) {
@@ -411,7 +463,7 @@ featured: draft.featured || false,
        >	
   <div style={styles.articleHeader}>
     <div style={styles.articleDate}>
-      {selectedPost.date}
+      {selectedPost.date} · {selectedPostReadTime} min read
     </div>
 
     <h1 style={styles.articleTitle}>
@@ -435,12 +487,76 @@ featured: draft.featured || false,
   <div
     className="article-body"
     style={styles.markdownBody}
-    dangerouslySetInnerHTML={{ __html: selectedPost.body || "" }}
+    dangerouslySetInnerHTML={{
+      __html: selectedPost.body || "",
+    }}
   />
-</article>
+
+  <div style={styles.articleEnd}>
+    <p style={styles.articleEndEyebrow}>
+      From One to the Next
+    </p>
+
+    <h2 style={styles.articleEndTitle}>
+      Keep the conversation going.
+    </h2>
+
+    <p style={styles.articleEndText}>
+      Share this piece with someone who would value it, or
+      subscribe for new writing from Christian young adults.
+    </p>
+
+    <div style={styles.articleEndActions}>
+      <ShareButton
+        post={selectedPost}
+        incrementPostMetric={incrementPostMetric}
+      />
+
+      <button
+        type="button"
+        style={styles.articleEndSubscribeButton}
+        onClick={() => {
+          document
+            .getElementById("subscribe")
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+        }}
+      >
+        Subscribe
+      </button>
+    </div>
+  </div>
+  </article>
+
         </main>
 
+        {relatedPosts.length > 0 && (
+          <section style={styles.relatedSection}>
+            <p style={styles.relatedEyebrow}>
+              Continue Reading
+            </p>
+
+            <h2 style={styles.relatedHeading}>
+              More from From One to the Next
+            </h2>
+
+            <div style={styles.relatedGrid}>
+              {relatedPosts.map((post) => (
+                <ArticleCard
+                  key={post.id}
+                  post={post}
+                  incrementPostMetric={incrementPostMetric}
+                  isAdmin={false}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         <Footer />
+
       </div>
     );
   }
@@ -502,8 +618,79 @@ featured: draft.featured || false,
           ))}
 
           {!loadingPosts && visiblePosts.length === 0 && (
-  <div style={styles.card}>No posts found.</div>
-)}
+            <div style={styles.card}>No posts found.</div>
+          )}
+
+          {activeCategory === "Home" && (
+            <section style={styles.topicSection}>
+              <p style={styles.topicEyebrow}>Explore by Topic</p>
+
+              <h2 style={styles.topicHeading}>
+                Find writing for where you are.
+              </h2>
+
+              <div style={styles.topicGrid}>
+                {topicCards.map((topic) => (
+                  <button
+                    key={topic.label}
+                    type="button"
+                    className="topic-card"
+                    style={{
+                      ...styles.topicCard,
+                      ...(topic.image
+                        ? {
+                            backgroundImage: `
+                              linear-gradient(
+                                180deg,
+                                rgba(15, 23, 34, 0.12) 0%,
+                                rgba(15, 23, 34, 0.88) 100%
+                              ),
+                              url("${topic.image}")
+                            `,
+                          }
+                        : {}),
+                    }}
+                    onClick={() => {
+                      setActiveCategory(topic.label);
+
+                      window.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                      });
+                    }}
+                  >
+
+                    <div
+  		      className="topic-card-content"
+  		      style={styles.topicCardContent}
+		    >
+
+                      <span
+  			className="topic-card-label"
+  			style={styles.topicCardLabel}
+		      >
+
+                        {topic.label}
+                      </span>
+
+                      <p
+  			className="topic-card-description"
+  			style={styles.topicCardDescription}
+		      >
+
+                        {topic.description}
+                      </p>
+
+                      <span style={styles.topicCardLink}>
+                        Explore {topic.label} →
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
         </section>
          )}
 

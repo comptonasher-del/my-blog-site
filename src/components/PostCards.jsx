@@ -84,6 +84,9 @@ export function ArticleCard({
 
   return (
     <article
+      className={`article-card ${
+        post.image ? "article-card-has-image" : "article-card-no-image"
+      }`}
       style={hovered ? styles.cardHover : styles.card}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -94,20 +97,23 @@ export function ArticleCard({
     >
       {post.image && (
         <img
+          className="article-card-image"
           src={post.image}
           alt={post.title}
           style={styles.postImage}
         />
       )}
 
-      <div style={styles.cardBody}>
-        <div style={styles.meta}>
+      <div className="article-card-body" style={styles.cardBody}>
+        <div className="article-card-meta" style={styles.meta}>
           {post.type} · {post.date} · {readTime} min read
         </div>
 
-        <h2 style={styles.postTitle}>{post.title}</h2>
+        <h2 className="article-card-title" style={styles.postTitle}>
+          {post.title}
+        </h2>
 
-        <p style={styles.bodyText}>
+        <p className="article-card-excerpt" style={styles.bodyText}>
           {post.excerpt || `${(post.body || "").slice(0, 150)}...`}
         </p>
 

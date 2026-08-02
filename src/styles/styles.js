@@ -889,6 +889,172 @@ footerCopyright: {
   color: "rgba(255, 250, 243, 0.52)",
 },
 
+articleEnd: {
+  maxWidth: "720px",
+  margin: "72px auto 0",
+  paddingTop: "40px",
+  borderTop: "1px solid rgba(31, 41, 51, 0.18)",
+},
+
+articleEndEyebrow: {
+  margin: "0 0 14px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+articleEndTitle: {
+  margin: "0 0 14px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(28px, 4vw, 42px)",
+  lineHeight: 1.15,
+  letterSpacing: "-0.035em",
+  color: "#18212f",
+},
+
+articleEndText: {
+  maxWidth: "610px",
+  margin: "0 0 24px",
+  fontSize: "16px",
+  lineHeight: 1.7,
+  color: "#6b6258",
+},
+
+articleEndActions: {
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: "12px",
+},
+
+articleEndSubscribeButton: {
+  border: "1px solid #18212f",
+  padding: "11px 18px",
+  background: "#18212f",
+  color: "#fffaf3",
+  fontFamily: "inherit",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  cursor: "pointer",
+},
+
+
+relatedSection: {
+  width: "100%",
+  maxWidth: "1120px",
+  margin: "80px auto 0",
+  padding: "0 24px",
+  boxSizing: "border-box",
+},
+
+relatedEyebrow: {
+  margin: "0 0 12px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+relatedHeading: {
+  margin: "0 0 32px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(28px, 4vw, 42px)",
+  lineHeight: 1.15,
+  letterSpacing: "-0.035em",
+  color: "#18212f",
+},
+
+relatedGrid: {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: "28px",
+},
+
+topicSection: {
+  gridColumn: "1 / -1",
+  width: "100%",
+  marginTop: "96px",
+},
+
+topicEyebrow: {
+  margin: "0 0 12px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+topicHeading: {
+  maxWidth: "620px",
+  margin: "0 0 34px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "clamp(30px, 4vw, 46px)",
+  lineHeight: 1.12,
+  letterSpacing: "-0.04em",
+  color: "#18212f",
+},
+
+topicGrid: {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit, minmax(250px, 1fr))",
+  gap: "20px",
+},
+
+topicCard: {
+  position: "relative",
+  minHeight: "390px",
+  padding: 0,
+  overflow: "hidden",
+  border: 0,
+  borderRadius: "2px",
+  backgroundColor: "#263244",
+  backgroundPosition: "center",
+  backgroundSize: "cover",
+  color: "#fffaf3",
+  textAlign: "left",
+  cursor: "pointer",
+},
+
+topicCardContent: {
+  position: "absolute",
+  right: 0,
+  bottom: 0,
+  left: 0,
+  padding: "30px",
+},
+
+topicCardLabel: {
+  display: "block",
+  marginBottom: "12px",
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "30px",
+  fontWeight: 700,
+  lineHeight: 1.1,
+},
+
+topicCardDescription: {
+  maxWidth: "340px",
+  minHeight: "52px",
+  margin: "0 0 20px",
+  fontSize: "14px",
+  lineHeight: 1.6,
+  color: "rgba(255, 250, 243, 0.8)",
+},
+
+topicCardLink: {
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+},
 };
 
 export default styles;
