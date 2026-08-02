@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styles from "../styles/styles";
 
 const NAV_ITEMS = ["Home", "Journal", "Essays", "Reviews"];
@@ -22,10 +23,22 @@ export default function SiteHeader({
   signIn,
   signOut,
 }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const isOverlayHeader = currentView === "home" && !isAdminPage;
   const headerColor = isOverlayHeader ? "#fffaf3" : "#18212f";
 
 function openCategory(category) {
+  setMobileMenuOpen(false);
+
   if (currentView === "article") {
     window.location.href = `/?category=${encodeURIComponent(category)}`;
     return;
@@ -36,6 +49,8 @@ function openCategory(category) {
 }
 
 function openAboutPage() {
+  setMobileMenuOpen(false);
+
   if (currentView === "article") {
     window.location.href = "/?view=about";
     return;
@@ -44,7 +59,6 @@ function openAboutPage() {
   setCurrentView("about");
   setActiveCategory("About");
 }
-
   function closeSearch() {
     setSearchQuery("");
     setSearchOpen(false);
@@ -73,7 +87,7 @@ function openAboutPage() {
           <span>THE NEXT</span>
         </button>
 
-        <nav style={styles.nav}>
+        <nav className="desktop-nav" style={styles.nav}>
           {NAV_ITEMS.map((item) => (
             <button
               key={item}
@@ -116,7 +130,64 @@ function openAboutPage() {
             ⌕
           </button>
         </nav>
-      </div>
+        <button
+          type="button"
+          className="mobile-menu-button"
+          aria-label="Open navigation menu"
+          aria-expanded={mobileMenuOpen}
+          style={{
+            ...styles.mobileMenuButton,
+            color: mobileMenuOpen ? "#18212f" : headerColor,
+          }}
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          {mobileMenuOpen ? "✕" : "☰"}
+        </button>
+      </div>      
+      <nav
+        className={`mobile-menu-panel ${
+          mobileMenuOpen ? "mobile-menu-panel-open" : ""
+        }`}
+        aria-hidden={!mobileMenuOpen}
+        style={styles.mobileMenuPanel}
+      >
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item}
+            style={{
+              ...styles.mobileMenuLink,
+              color: "#18212f",
+            }}
+            onClick={() => openCategory(item)}
+          >
+            {item}
+          </button>
+        ))}
+
+        <button
+          style={{
+            ...styles.mobileMenuLink,
+            color: "#18212f",
+          }}
+          onClick={openAboutPage}
+        >
+          About
+        </button>
+
+        <button
+          style={{
+            ...styles.mobileMenuLink,
+            color: "#18212f",
+          }}
+          onClick={() => {
+            setSearchOpen(!searchOpen);
+            setMobileMenuOpen(false);
+          }}
+        >
+          Search
+        </button>
+      </nav>
+
 
       {searchOpen && (
         <div style={styles.searchWrapper}>

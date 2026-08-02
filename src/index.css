@@ -73,7 +73,19 @@ body {
 .article-body p {
   margin: 0 0 22px;
 }
+
+.mobile-menu-panel {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-menu-button {
+    display: block !important;
+  }
   body {
     overflow-x: hidden;
   }
@@ -81,6 +93,38 @@ body {
   h1 {
     font-size: clamp(38px, 12vw, 64px) !important;
   }
+
+  .mobile-menu-panel {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 120px 34px 40px;
+    box-sizing: border-box;
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    background: #f7f4ef;
+    z-index: 100;
+
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+      transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease,
+      visibility 0s linear 0.38s;
+  }
+
+  .mobile-menu-panel-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
 
   .article-body {
     font-size: 19px !important;

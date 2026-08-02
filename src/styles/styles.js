@@ -32,6 +32,8 @@ heroStandard: {
 },
 
 headerInner: {
+  position: "relative",
+  zIndex: 110,  
   width: "100%",
   maxWidth: "1320px",
   margin: "0 auto",
@@ -388,6 +390,33 @@ searchButton: {
   fontSize: "21px",
   lineHeight: 1,
   padding: "0 4px",
+},
+
+mobileMenuButton: {
+  display: "none",
+  border: 0,
+  background: "transparent",
+  padding: "2px 4px",
+  fontSize: "27px",
+  lineHeight: 1,
+  cursor: "pointer",
+},
+
+mobileMenuPanel: {
+  background: "#f7f4ef",
+},
+
+mobileMenuLink: {
+  width: "100%",
+  border: 0,
+  borderBottom: "1px solid #e5dfd6",
+  background: "transparent",
+  padding: "13px 2px",
+  textAlign: "left",
+  fontFamily: "inherit",
+  fontSize: "14px",
+  fontWeight: 600,
+  cursor: "pointer",
 },
 
 searchWrapper: {
