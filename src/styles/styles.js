@@ -704,45 +704,131 @@ markdownBody: {
     cursor: "pointer",
     color: "#52525b",
   },
+
 shareWrapper: {
   position: "relative",
+  display: "inline-flex",
+  zIndex: 30,
 },
+
 shareButton: {
-  border: "1px solid #d4d4d8",
-  background: "#fffaf3",
-  color: "#1f2933",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "9px",
+  border: "1px solid rgba(24, 33, 47, 0.28)",
   borderRadius: "999px",
-  padding: "10px 16px",
-  fontSize: "14px",
+  padding: "10px 14px",
+  background: "#fffaf3",
+  color: "#18212f",
+  boxShadow: "0 5px 18px rgba(24, 33, 47, 0.08)",
+  fontFamily: "inherit",
+  fontSize: "11px",
   fontWeight: 700,
+  letterSpacing: "0.07em",
+  textTransform: "uppercase",
   cursor: "pointer",
+  transition:
+    "background 160ms ease, color 160ms ease, transform 160ms ease",
+},
+
+shareButtonIcon: {
+  fontSize: "15px",
+  lineHeight: 1,
+  transform: "translateY(-1px)",
+},
+
+shareButtonChevron: {
+  fontSize: "7px",
+  lineHeight: 1,
+  opacity: 0.58,
 },
 
 shareMenu: {
   position: "absolute",
-  top: "44px",
+  top: "calc(100% + 12px)",
   right: 0,
-  background: "white",
-  border: "1px solid #e5e7eb",
-  borderRadius: "14px",
-  boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-  padding: "8px",
-  display: "grid",
-  gap: "4px",
-  zIndex: 10,
+  width: "min(330px, calc(100vw - 32px))",
+  padding: "18px",
+  boxSizing: "border-box",
+  border: "1px solid rgba(24, 33, 47, 0.14)",
+  borderRadius: "12px",
+  background: "#fffaf3",
+  boxShadow: "0 24px 65px rgba(24, 33, 47, 0.2)",
+  zIndex: 300,
+},
+
+shareMenuEyebrow: {
+  margin: "0 0 7px",
+  fontSize: "9px",
+  fontWeight: 700,
+  letterSpacing: "0.13em",
+  textTransform: "uppercase",
+  color: "#817568",
+},
+
+shareMenuTitle: {
+  margin: 0,
+  fontFamily: "'Libre Baskerville', Georgia, serif",
+  fontSize: "18px",
+  lineHeight: 1.3,
+  color: "#18212f",
+},
+
+shareMenuDivider: {
+  height: "1px",
+  margin: "16px 0 7px",
+  background: "rgba(24, 33, 47, 0.14)",
 },
 
 shareMenuItem: {
+  display: "grid",
+  gridTemplateColumns: "36px minmax(0, 1fr)",
+  gap: "12px",
+  alignItems: "center",
+  width: "100%",
+  padding: "10px",
+  boxSizing: "border-box",
   border: 0,
+  borderRadius: "8px",
   background: "transparent",
-  color: "#1f2933",
-  textDecoration: "none",
-  padding: "10px 14px",
-  borderRadius: "10px",
-  fontSize: "14px",
+  color: "#18212f",
+  fontFamily: "inherit",
   textAlign: "left",
+  textDecoration: "none",
   cursor: "pointer",
-  whiteSpace: "nowrap",
+  transition:
+    "background 150ms ease, transform 150ms ease",
+},
+
+shareMenuIcon: {
+  display: "grid",
+  placeItems: "center",
+  width: "34px",
+  height: "34px",
+  borderRadius: "50%",
+  background: "rgba(24, 33, 47, 0.08)",
+  fontSize: "13px",
+  fontWeight: 700,
+  color: "#18212f",
+},
+
+shareMenuItemText: {
+  display: "grid",
+  gap: "2px",
+  minWidth: 0,
+},
+
+shareMenuItemLabel: {
+  fontSize: "13px",
+  fontWeight: 700,
+  color: "#18212f",
+},
+
+shareMenuItemNote: {
+  fontSize: "11px",
+  lineHeight: 1.35,
+  color: "#817568",
 },
 
 footer: {
