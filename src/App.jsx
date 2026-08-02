@@ -23,6 +23,7 @@ import {
 import PostEditorModal from "./components/PostEditorModal";
 import AboutPage from "./components/AboutPage";
 import SiteHeader from "./components/SiteHeader";
+import ReadingProgress from "./components/ReadingProgress";
 
 const DEFAULT_SITE_CONFIG = {
   site_title: "From One to the Next",
@@ -379,7 +380,9 @@ featured: draft.featured || false,
 
     return (
       <div style={styles.page}>
-        <SiteHeader
+        <ReadingProgress />
+	
+	<SiteHeader
         currentView="article"
         siteConfig={siteConfig}
         activeCategory={activeCategory}
@@ -402,7 +405,10 @@ featured: draft.featured || false,
 
       <main style={styles.postPageLayout}>
 
-       <article style={styles.articlePage}>
+       <article
+ 	 id="article-content"
+         style={styles.articlePage}
+       >	
   <div style={styles.articleHeader}>
     <div style={styles.articleDate}>
       {selectedPost.date}

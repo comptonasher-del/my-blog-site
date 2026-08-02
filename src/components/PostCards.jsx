@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "../styles/styles";
+import { getReadingTime } from "../utils/readingTime";
 
 export function FeaturedArticle({
   post,
@@ -8,6 +9,7 @@ export function FeaturedArticle({
   onDelete,
 }) {
   const isLongTitle = post.title.length > 55;
+  const readTime = getReadingTime(post.body);
   return (
     <article
       style={{
@@ -37,8 +39,8 @@ export function FeaturedArticle({
   	}}
       >
         <div style={styles.featuredMeta}>
-          {post.type} · {post.date}
-  	</div>
+ 	  {post.type} · {post.date} · {readTime} min read
+	</div>
 
   	<h2
     	  style={{
@@ -77,6 +79,8 @@ export function ArticleCard({
   incrementPostMetric,
 }) {
   const [hovered, setHovered] = useState(false);
+  const readTime = getReadingTime(post.body);
+
 
   return (
     <article
@@ -98,7 +102,7 @@ export function ArticleCard({
 
       <div style={styles.cardBody}>
         <div style={styles.meta}>
-          {post.type} · {post.date}
+          {post.type} · {post.date} · {readTime} min read
         </div>
 
         <h2 style={styles.postTitle}>{post.title}</h2>
