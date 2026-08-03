@@ -329,16 +329,19 @@ export default function AboutPage({
               {members.map((member) => (
                 <article
                   key={member.id || member.slug}
+                  className="about-team-card"
                   style={styles.aboutTeamCard}
                 >
                   {member.image_url ? (
                     <img
+                      className="about-team-image"
                       src={member.image_url}
                       alt={member.name}
                       style={styles.aboutTeamImage}
                     />
                   ) : (
                     <div
+                      className="about-team-placeholder"
                       style={styles.aboutTeamPlaceholder}
                       aria-label={`${member.name} portrait placeholder`}
                     >
@@ -346,16 +349,25 @@ export default function AboutPage({
                     </div>
                   )}
 
-                  <div style={styles.aboutTeamCardBody}>
+                  <div
+                    className="about-team-card-body"
+                    style={styles.aboutTeamCardBody}
+                  >
                     <p style={styles.aboutTeamRole}>
                       {member.role}
                     </p>
 
-                    <h3 style={styles.aboutTeamName}>
+                    <h3
+                      className="about-team-name"
+                      style={styles.aboutTeamName}
+                    >
                       {member.name}
                     </h3>
 
-                    <p style={styles.aboutTeamBio}>
+                    <p
+                      className="about-team-bio"
+                      style={styles.aboutTeamBio}
+                    >
                       {member.bio}
                     </p>
 

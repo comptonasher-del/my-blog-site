@@ -369,6 +369,46 @@ body {
     grid-template-columns: 1fr !important;
   }
 
+  .about-team-grid {
+    gap: 24px !important;
+  }
+
+  .about-team-card {
+    display: grid !important;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(24, 33, 47, 0.14);
+  }
+
+  .about-team-image,
+  .about-team-placeholder {
+    width: 104px !important;
+    height: 132px !important;
+    aspect-ratio: auto !important;
+    object-fit: cover;
+  }
+
+  .about-team-placeholder {
+    font-size: 28px !important;
+  }
+
+  .about-team-card-body {
+    min-width: 0;
+    padding-top: 0 !important;
+  }
+
+  .about-team-name {
+    margin-bottom: 9px !important;
+    font-size: 21px !important;
+  }
+
+  .about-team-bio {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+  }
+
   .about-cta-actions {
     flex-direction: column;
     align-items: stretch;

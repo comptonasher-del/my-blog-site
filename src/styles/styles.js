@@ -1287,7 +1287,7 @@ aboutPage: {
   width: "100%",
   maxWidth: "1180px",
   margin: "0 auto",
-  padding: "80px 24px 0",
+  padding: "56px 24px 0",
   boxSizing: "border-box",
   color: "#18212f",
 },
@@ -1295,9 +1295,9 @@ aboutPage: {
 aboutHero: {
   display: "grid",
   gridTemplateColumns: "minmax(0, 1.3fr) minmax(280px, 0.7fr)",
-  gap: "clamp(48px, 9vw, 120px)",
+  gap: "clamp(40px, 7vw, 90px)",
   alignItems: "end",
-  padding: "34px 0 96px",
+  padding: "24px 0 64px",
 },
 
 aboutEyebrow: {
@@ -1329,7 +1329,7 @@ aboutHeroCopy: {
 },
 
 aboutPurposeSection: {
-  padding: "90px 0",
+  padding: "64px 0",
   borderTop: "1px solid rgba(24, 33, 47, 0.16)",
 },
 
@@ -1361,11 +1361,11 @@ aboutPrinciplesGrid: {
 },
 
 aboutPrinciple: {
-  padding: "48px 36px 54px 0",
+  padding: "36px 28px 40px 0",
 },
 
 aboutPrincipleNumber: {
-  margin: "0 0 40px",
+  margin: "0 0 26px",
   fontSize: "11px",
   fontWeight: 700,
   letterSpacing: "0.12em",
@@ -1388,19 +1388,19 @@ aboutPrincipleText: {
 },
 
 aboutWritingSection: {
-  padding: "100px 0",
+  padding: "68px 0",
 },
 
 aboutValuesGrid: {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
   gap: "0 64px",
-  marginTop: "54px",
+  marginTop: "38px",
   borderTop: "1px solid rgba(24, 33, 47, 0.16)",
 },
 
 aboutValue: {
-  padding: "34px 0",
+  padding: "26px 0",
   borderBottom: "1px solid rgba(24, 33, 47, 0.16)",
 },
 
@@ -1422,7 +1422,7 @@ aboutValueText: {
 aboutStorySection: {
   maxWidth: "820px",
   margin: "0 auto",
-  padding: "76px 0",
+  padding: "54px 0",
   borderTop: "1px solid rgba(24, 33, 47, 0.16)",
 },
 
@@ -1434,7 +1434,7 @@ aboutStoryContent: {
 },
 
 aboutTeamSection: {
-  padding: "100px 0",
+  padding: "68px 0",
   borderTop: "1px solid rgba(24, 33, 47, 0.16)",
 },
 
@@ -1443,7 +1443,7 @@ aboutTeamHeader: {
   justifyContent: "space-between",
   alignItems: "flex-end",
   gap: "30px",
-  marginBottom: "72px",
+  marginBottom: "44px",
 },
 
 aboutAdminButton: {
@@ -1461,7 +1461,7 @@ aboutAdminButton: {
 },
 
 aboutTeamGroup: {
-  marginTop: "64px",
+  marginTop: "44px",
 },
 
 aboutTeamGroupTitle: {
@@ -1478,7 +1478,7 @@ aboutTeamGroupTitle: {
 aboutTeamGrid: {
   display: "grid",
   gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  gap: "48px 28px",
+  gap: "34px 28px",
 },
 
 aboutTeamCard: {
@@ -1505,7 +1505,7 @@ aboutTeamPlaceholder: {
 },
 
 aboutTeamCardBody: {
-  paddingTop: "22px",
+  paddingTop: "16px",
 },
 
 aboutTeamRole: {
@@ -1547,8 +1547,8 @@ aboutEditButton: {
 },
 
 aboutClosingSection: {
-  margin: "20px -24px 0",
-  padding: "clamp(64px, 9vw, 108px) 24px",
+  margin: "12px -24px 0",
+  padding: "clamp(48px, 7vw, 76px) 24px",
   boxSizing: "border-box",
   background: "#18212f",
   color: "#fffaf3",

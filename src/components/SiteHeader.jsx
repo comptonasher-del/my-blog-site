@@ -201,6 +201,7 @@ function openAboutPage() {
                 ...styles.navLink,
                 color: headerColor,
                 borderBottomColor:
+                  currentView === "home" &&
                   activeCategory === item
                     ? headerColor
                     : "transparent",
@@ -215,10 +216,10 @@ function openAboutPage() {
             style={{
               ...styles.navLink,
               color: headerColor,
-              borderBottomColor:
-                activeCategory === "About"
-                  ? headerColor
-                  : "transparent",
+             borderBottomColor:
+               currentView === "about"
+                 ? headerColor
+                 : "transparent",
             }}
             onClick={openAboutPage}
           >
