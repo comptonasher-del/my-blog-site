@@ -145,7 +145,84 @@ body {
   font-weight: 700;
 }
 
-@media (max-width: 768px) {
+/* Tablet and small-laptop article grids */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 28px 24px !important;
+  }
+
+  .article-card {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0;
+  }
+
+  .article-card-image {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 0 !important;
+  }
+
+  .article-card-body {
+    min-width: 0;
+    padding: 22px 22px 24px !important;
+  }
+
+  .article-card-meta {
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+  }
+
+  .article-card-title {
+    margin: 10px 0 18px !important;
+    font-size: 28px !important;
+    line-height: 1.12 !important;
+  }
+
+  .article-card-excerpt {
+    display: none;
+  }
+
+  .topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .topic-card {
+    min-height: 260px !important;
+  }
+
+  .topic-card:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .topic-card-content {
+    padding: 26px !important;
+  }
+
+  .topic-card-label {
+    margin-bottom: 10px !important;
+    font-size: 32px !important;
+  }
+
+  .topic-card-description {
+    display: block;
+    min-height: 0 !important;
+    margin-bottom: 18px !important;
+  }
+}
+
+
+/* Phone article grids */
+@media (max-width: 600px) {
+  .posts-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
   .article-card {
     display: grid !important;
     grid-template-columns: 112px minmax(0, 1fr);
@@ -185,8 +262,16 @@ body {
     display: none;
   }
 
+  .topic-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   .topic-card {
     min-height: 150px !important;
+  }
+
+  .topic-card:nth-child(3) {
+    grid-column: auto;
   }
 
   .topic-card-content {

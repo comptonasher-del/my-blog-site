@@ -627,7 +627,7 @@ featured: draft.featured || false,
 {currentView === "about" ? (
   <AboutPage content={siteConfig.about_page} />
 ) : (
-        <section style={styles.posts}>
+        <section className="posts-grid" style={styles.posts}>
 {loadingPosts && (
   <div style={styles.card}>Loading articles...</div>
 )}
@@ -667,7 +667,7 @@ featured: draft.featured || false,
                 Find writing for where you are.
               </h2>
 
-              <div style={styles.topicGrid}>
+              <div className="topic-grid" style={styles.topicGrid}>
                 {topicCards.map((topic) => (
                   <button
                     key={topic.label}
