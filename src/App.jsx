@@ -60,9 +60,7 @@ export default function App() {
 useEffect(() => {
   document.title = siteConfig.site_title || "From One to the Next";
 }, [siteConfig.site_title]);
-  const [settingsDraft, setSettingsDraft] = useState(null);
-  const [savingSettings, setSavingSettings] = useState(false);
-
+   
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(emptyPost());
 
@@ -136,21 +134,11 @@ const visiblePosts = useMemo(() => {
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  if (activeCategory === "Essays") {
+  if (
+    ["Journal", "Essays", "Reviews"].includes(activeCategory)
+  ) {
     filtered = filtered.filter(
-      (post) => post.type === "Op-Ed"
-    );
-  }
-
-  if (activeCategory === "Reviews") {
-    filtered = filtered.filter(
-      (post) => post.type === "Book Review"
-    );
-  }
-
-  if (activeCategory === "Journal") {
-    filtered = filtered.filter(
-      (post) => post.type === "Journal"
+      (post) => post.type === activeCategory
     );
   }
 
@@ -188,13 +176,13 @@ const topicCards = [
   },
   {
     label: "Essays",
-    postType: "Op-Ed",
+    postType: "Essays",
     description:
       "Thoughtful perspectives on faith, culture, and the questions shaping our lives.",
   },
   {
     label: "Reviews",
-    postType: "Book Review",
+    postType: "Reviews",
     description:
       "Books, ideas, and culture considered through a Christian lens.",
   },
@@ -287,7 +275,7 @@ useEffect(() => {
     if (data && data.length > 0) {
       const loadedConfig = { ...DEFAULT_SITE_CONFIG, ...data[0] };
       setSiteConfig(loadedConfig);
-      setSettingsDraft(loadedConfig);
+      
     }
   }
 
@@ -382,43 +370,7 @@ featured: draft.featured || false,
     setPosts(posts.filter((post) => post.id !== id));
   }
 
-  async function saveSiteSettings() {
-    if (!settingsDraft) return;
-
-    setSavingSettings(true);
-
-    const { data, error } = await supabase
-      .from("site_config")
-      .update({
-        site_title: settingsDraft.site_title,
-        site_tagline: settingsDraft.site_tagline,
-        homepage_intro: settingsDraft.homepage_intro,
-        about_page: settingsDraft.about_page,
-        footer_text: settingsDraft.footer_text,
-        background_color: settingsDraft.background_color,
-        card_background: settingsDraft.card_background,
-        text_color: settingsDraft.text_color,
-        muted_text_color: settingsDraft.muted_text_color,
-        card_radius: settingsDraft.card_radius,
-      })
-      .eq("id", settingsDraft.id)
-      .select()
-      .single();
-
-    setSavingSettings(false);
-
-    if (error) {
-      console.error("Error saving site settings:", error);
-      alert("Could not save site settings.");
-      return;
-    }
-
-    const updatedConfig = { ...DEFAULT_SITE_CONFIG, ...data };
-    setSiteConfig(updatedConfig);
-    setSettingsDraft(updatedConfig);
-    alert("Site settings saved.");
-  }
-
+  
   async function handleImageUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -460,11 +412,7 @@ featured: draft.featured || false,
         loadingPosts={loadingPosts}
         startNewPost={startNewPost}
         startEdit={startEdit}
-        deletePost={deletePost}
-        settingsDraft={settingsDraft}
-        setSettingsDraft={setSettingsDraft}
-        savingSettings={savingSettings}
-        saveSiteSettings={saveSiteSettings}
+        deletePost={deletePost}         
         editing={editing}
         draft={draft}
         setDraft={setDraft}

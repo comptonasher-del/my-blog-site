@@ -1,16 +1,7 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import styles from "../styles/styles";
-
-const POST_TYPES = [
-  "Op-Ed",
-  "Cafe Review",
-  "Book Review",
-  "Movie Review",
-  "Travel Note",
-  "Journal",
-  "Other",
-];
+import { CONTENT_CATEGORIES } from "../config/contentCategories";
 
 function RichTextEditor({ value, onChange }) {
   const editor = useEditor({
@@ -93,12 +84,22 @@ export default function PostEditorModal({
   handleImageUpload,
 }) {
   const isExistingPost = posts.some((post) => post.id === draft.id);
+  const hasValidCategory = CONTENT_CATEGORIES.includes(draft.type);
 
   function updateDraft(field, value) {
     setDraft({
       ...draft,
       [field]: value,
     });
+  }
+
+  function handleSave() {
+    if (!CONTENT_CATEGORIES.includes(draft.type)) {
+      window.alert("Please select Journal, Essays, or Reviews.");
+      return;
+    }
+
+    savePost();
   }
 
   return (
@@ -153,16 +154,30 @@ export default function PostEditorModal({
           Feature this article on the homepage
         </label>
 
-        <div style={styles.formGrid}>
-          <select
-            style={styles.select}
-            value={draft.type}
-            onChange={(event) => updateDraft("type", event.target.value)}
-          >
-            {POST_TYPES.map((type) => (
-              <option key={type}>{type}</option>
-            ))}
-          </select>
+        <div style={styles.formGrid}>           
+          <label>
+            Category
+
+            <select
+              style={styles.select}
+              value={hasValidCategory ? draft.type : ""}
+              onChange={(event) =>
+                updateDraft("type", event.target.value)
+              }
+            >
+              <option value="" disabled>
+                {draft.type
+                  ? `Needs reassignment — currently ${draft.type}`
+                  : "Select a category"}
+              </option>
+
+              {CONTENT_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <input
             style={styles.input}
@@ -216,7 +231,7 @@ export default function PostEditorModal({
         />
 
         <div style={styles.buttonRow}>
-          <button style={styles.primaryButton} onClick={savePost}>
+          <button style={styles.primaryButton} onClick={handleSave}>
             Save post
           </button>
 

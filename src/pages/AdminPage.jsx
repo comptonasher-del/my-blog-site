@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { SiteSettingsPanel } from "../components/AdminPanels";
 import PostEditorModal from "../components/PostEditorModal";
 import styles from "../styles/styles";
 
@@ -310,11 +309,7 @@ export default function AdminPage({
   loadingPosts,
   startNewPost,
   startEdit,
-  deletePost,
-  settingsDraft,
-  setSettingsDraft,
-  savingSettings,
-  saveSiteSettings,
+  deletePost,  
   editing,
   draft,
   setDraft,
@@ -374,7 +369,7 @@ export default function AdminPage({
           </h1>
 
           <p style={adminStyles.loginText}>
-            Sign in to manage articles, site settings, and
+            Sign in to manage articles and
             publication activity.
           </p>
 
@@ -568,15 +563,7 @@ export default function AdminPage({
               </div>
             )}
           </section>
-
-          {settingsDraft && (
-            <SiteSettingsPanel
-              settingsDraft={settingsDraft}
-              setSettingsDraft={setSettingsDraft}
-              savingSettings={savingSettings}
-              saveSiteSettings={saveSiteSettings}
-            />
-          )}
+           
         </div>
       </main>
 
