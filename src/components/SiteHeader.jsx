@@ -15,16 +15,8 @@ export default function SiteHeader({
   setSearchOpen,
   searchQuery,
   setSearchQuery,
-  isAdminPage,
-  session,
-  email,
-  setEmail,
-  password,
-  setPassword,
-  startNewPost,
-  signIn,
-  signOut,
 }) {
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [headerScrolled, setHeaderScrolled] = useState(false);
@@ -101,10 +93,8 @@ export default function SiteHeader({
     };
   }, [mobileMenuOpen, searchOpen]);  
 
-
-  const isOverlayHeader =
-    currentView === "home" && !isAdminPage;
-
+  const isOverlayHeader = currentView === "home";
+  
   const useSolidHeader =
     headerScrolled ||
     mobileMenuOpen ||
@@ -327,56 +317,7 @@ function openAboutPage() {
           />
         )}
 
-      {isAdminPage && (
-        <div style={styles.adminHeaderControls}>
-          {session ? (
-            <>
-              <button
-                style={styles.primaryButton}
-                onClick={startNewPost}
-              >
-                + New post
-              </button>
-
-              <button
-                style={styles.secondaryButton}
-                onClick={signOut}
-              >
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <input
-                style={styles.input}
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
-                }
-              />
-
-              <input
-                style={styles.input}
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-              />
-
-              <button
-                style={styles.primaryButton}
-                onClick={signIn}
-              >
-                Sign in
-              </button>
-            </>
-          )}
-        </div>
-      )}
+       
     </header>
   );
 }

@@ -15,16 +15,12 @@ import {
   ShareButton,
 } from "./components/ArticleDetails";
 import Footer from "./components/Footer";
-import {
-  AdminPostMetrics,
-  AdminStats,
-  SiteSettingsPanel,
-} from "./components/AdminPanels";
-import PostEditorModal from "./components/PostEditorModal";
 import AboutPage from "./components/AboutPage";
 import SiteHeader from "./components/SiteHeader";
 import ReadingProgress from "./components/ReadingProgress";
 import { getReadingTime } from "./utils/readingTime";
+import AdminPage from "./pages/AdminPage";
+
 
 const DEFAULT_SITE_CONFIG = {
   site_title: "From One to the Next",
@@ -51,6 +47,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState(initialView);
 
   const [session, setSession] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -78,6 +75,7 @@ useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
+      setAuthReady(true);
     }
 
     loadSession();
@@ -85,8 +83,9 @@ useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+          setSession(session);
+          setAuthReady(true);
+        });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -292,15 +291,16 @@ useEffect(() => {
     }
   }
 
-  async function signIn() {
+    async function signIn() {
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
 
     if (error) {
       console.error("Login failed:", error);
-      alert("Login failed.");
+      alert(error.message);
+      return;
     }
   }
 
@@ -444,6 +444,40 @@ featured: draft.featured || false,
     }));
   }
 
+
+  if (isAdminPage) {
+    return (
+      <AdminPage
+        authReady={authReady}
+        session={session}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        signIn={signIn}
+        signOut={signOut}
+        posts={posts}
+        loadingPosts={loadingPosts}
+        startNewPost={startNewPost}
+        startEdit={startEdit}
+        deletePost={deletePost}
+        settingsDraft={settingsDraft}
+        setSettingsDraft={setSettingsDraft}
+        savingSettings={savingSettings}
+        saveSiteSettings={saveSiteSettings}
+        editing={editing}
+        draft={draft}
+        setDraft={setDraft}
+        savePost={savePost}
+        closeEditor={() => {
+          setEditing(false);
+          setDraft(emptyPost());
+        }}
+        handleImageUpload={handleImageUpload}
+      />
+    );
+  }
+
   if (isPostPage) {
     if (loadingPosts) {
       return (
@@ -480,16 +514,7 @@ featured: draft.featured || false,
         searchOpen={searchOpen}
         setSearchOpen={setSearchOpen}
         searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        isAdminPage={isAdminPage}
-        session={session}
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        startNewPost={startNewPost}
-        signIn={signIn}
-        signOut={signOut}
+        setSearchQuery={setSearchQuery}     
       />
 
       <main style={styles.postPageLayout}>
@@ -518,7 +543,6 @@ featured: draft.featured || false,
   <AuthorBlock post={selectedPost} />
  <ShareButton post={selectedPost} incrementPostMetric={incrementPostMetric} />
 </div>
-{session && <AdminPostMetrics post={selectedPost} />}
   </div>
 
   <div
@@ -610,16 +634,7 @@ featured: draft.featured || false,
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
       searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-      isAdminPage={isAdminPage}
-      session={session}
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
-      startNewPost={startNewPost}
-      signIn={signIn}
-      signOut={signOut}
+      setSearchQuery={setSearchQuery}      
     />
 
     <main style={styles.layout}>
@@ -632,12 +647,10 @@ featured: draft.featured || false,
   <div style={styles.card}>Loading articles...</div>
 )}
           {featuredPost && (
-            <FeaturedArticle
-              post={featuredPost}
-              isAdmin={isAdminPage && !!session}
-              onEdit={startEdit}
-              onDelete={deletePost}
-            />
+             <FeaturedArticle
+               post={featuredPost}
+               isAdmin={false}
+             />
           )}
 
           {displayedPosts.length > 0 && (
@@ -645,13 +658,11 @@ featured: draft.featured || false,
           )}
 
           {displayedPosts.map((post) => (
-           <ArticleCard
-  key={post.id}
-  post={post}
-  incrementPostMetric={incrementPostMetric}
-              isAdmin={isAdminPage && !!session}
-              onEdit={startEdit}
-              onDelete={deletePost}
+            <ArticleCard
+              key={post.id}
+              post={post}
+              incrementPostMetric={incrementPostMetric}
+              isAdmin={false}
             />
           ))}
 
@@ -739,35 +750,11 @@ featured: draft.featured || false,
           )}
 
         </section>
-         )}
-
-        {isAdminPage && session && (
-          <aside style={styles.sidebar}>
-            {settingsDraft && (
-              <SiteSettingsPanel
-                settingsDraft={settingsDraft}
-                setSettingsDraft={setSettingsDraft}
-                savingSettings={savingSettings}
-                saveSiteSettings={saveSiteSettings}
-              />
-            )}
-
-            <AdminStats posts={posts} />
-          </aside>
-        )}
+         )}       
+     
       </main>
 
-      {editing && (
-        <PostEditorModal
-          draft={draft}
-          setDraft={setDraft}
-          posts={posts}
-          savePost={savePost}
-          closeEditor={() => setEditing(false)}
-          handleImageUpload={handleImageUpload}
-        />
-      )}
-
+      
 <Footer />
 
     </div>
