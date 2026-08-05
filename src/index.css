@@ -847,3 +847,54 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
+
+.admin-document-import {
+  margin-bottom: 18px;
+  border: 1px dashed #aaa197;
+  background: #f8f5f0;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.admin-document-import:hover {
+  border-color: #18212f;
+  background: #f3efe8;
+}
+
+.admin-document-import-label {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: center;
+  cursor: pointer;
+}
+
+.admin-document-import-badge {
+  display: inline-block;
+  padding: 5px 8px;
+  background: #18212f;
+  color: #fffaf3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.admin-document-import-title {
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 16px;
+}
+
+.admin-document-import-text {
+  color: #817568;
+  font-size: 12px;
+}
+
+.admin-document-import-busy {
+  opacity: 0.65;
+  pointer-events: none;
+}

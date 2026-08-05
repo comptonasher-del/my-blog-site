@@ -13,6 +13,7 @@ export function emptyPost() {
     authorImage: "",
     authorDescription: "",
     featured: false,
+    featuredHome: false,
   };
 }
 
@@ -39,9 +40,12 @@ export function mapSupabasePost(row) {
     readClicks: row.read_clicks || 0,
     shares: row.shares || 0,
     featured: row.featured || false,
+    featuredHome: row.featured_home || false,
     type: row.category || "Journal",
     rating: 0,
-    date: new Date().toISOString().slice(0, 10),
+    date:
+      row.date ||
+      new Date().toISOString().slice(0, 10),
     image: row.image_url || "",
   };
 }

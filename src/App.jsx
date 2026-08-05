@@ -157,11 +157,12 @@ const visiblePosts = useMemo(() => {
 
 }, [posts, activeCategory, searchQuery]);
  
-  const featuredPost =
-    activeCategory === "Home"
-      ? visiblePosts[0]
-      : visiblePosts.find((post) => post.featured) ||
-        visiblePosts[0];
+   const featuredPost =
+     activeCategory === "Home"
+       ? visiblePosts.find((post) => post.featuredHome) ||
+       visiblePosts[0]
+       : visiblePosts.find((post) => post.featured) ||
+       visiblePosts[0];
 
 const remainingPosts = visiblePosts.filter(
   (post) => post.id !== featuredPost?.id
@@ -190,16 +191,30 @@ const topicCards = [
     description:
       "Books, ideas, and culture considered through a Christian lens.",
   },
-].map((topic) => {
-  const matchingPost = posts.find(
-    (post) => post.type === topic.postType && post.image
-  );
 
-  return {
-    ...topic,
-    image: matchingPost?.image || featuredPost?.image || "",
-  };
-});
+ ].map((topic) => {
+   const categoryBanner = posts.find(
+     (post) =>
+       post.type === topic.postType &&
+       post.featured &&
+       post.image
+   );
+
+   const categoryFallback = posts.find(
+     (post) =>
+       post.type === topic.postType &&
+       post.image
+   );
+
+   return {
+     ...topic,
+     image:
+       categoryBanner?.image ||
+       categoryFallback?.image ||
+       featuredPost?.image ||
+       "",
+   };
+ });
 
  const selectedPost = posts.find(
   (post) => String(post.slug) === String(postId) || 
@@ -326,10 +341,30 @@ useEffect(() => {
         author_image: draft.authorImage || "",
         author_description: draft.authorDescription || "",
         featured: draft.featured || false,
-        category: draft.type || "Journal",
-         
-        image_url: draft.image || "",
+	featured_home: draft.featuredHome || false,
+	category: draft.type || "Journal",	 
+        date:
+          draft.date ||
+          new Date().toISOString().split("T")[0],
+        image_url: draft.image || "",         
+
       };
+
+      if (draft.featuredHome) {
+        const { error: homeBannerError } = await supabase
+          .from("posts")
+          .update({ featured_home: false })
+          .eq("featured_home", true);
+
+        if (homeBannerError) {
+          console.error(
+            "Error updating Home banner:",
+            homeBannerError
+          );
+          alert("Could not update the Home banner.");
+          return;
+        }
+      }
 
       if (draft.featured) {
         let clearPreviousBanner = supabase
@@ -424,6 +459,7 @@ useEffect(() => {
         setPosts([newPost, ...updatedPosts]);
       }
 
+      await loadPosts();
       setEditing(false);
       setDraft(emptyPost());
     }       

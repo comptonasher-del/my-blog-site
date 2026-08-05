@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import mammoth from "mammoth";
+import DOMPurify from "dompurify";
 import { CONTENT_CATEGORIES } from "../config/contentCategories";
 
 function RichTextEditor({ value, onChange }) {
@@ -10,6 +13,19 @@ function RichTextEditor({ value, onChange }) {
       onChange(editor.getHTML());
     },
   });
+
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const nextContent = value || "";
+
+    if (editor.getHTML() !== nextContent) {
+      editor.commands.setContent(nextContent, {
+        emitUpdate: false,
+      });
+    }
+  }, [editor, value]);
 
   if (!editor) return null;
 
@@ -152,11 +168,95 @@ export default function PostEditorModal({
   const hasValidCategory =
     CONTENT_CATEGORIES.includes(draft.type);
 
+  const [importingDocument, setImportingDocument] =
+    useState(false);
+
   function updateDraft(field, value) {
     setDraft((currentDraft) => ({
       ...currentDraft,
       [field]: value,
     }));
+  }
+
+  async function importWordDocument(file) {
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".docx")) {
+      window.alert(
+        "Please choose a .docx Word document."
+      );
+      return;
+    }
+
+    const hasArticleText = (draft.body || "")
+      .replace(/<[^>]*>/g, "")
+      .trim();
+
+    if (
+      hasArticleText &&
+      !window.confirm(
+        "Importing this document will replace the current article text. Continue?"
+      )
+    ) {
+      return;
+    }
+
+    setImportingDocument(true);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+
+      const result = await mammoth.convertToHtml(
+        { arrayBuffer },
+        {
+          styleMap: [
+            "p[style-name='Title'] => p:fresh",
+            "p[style-name='Heading 1'] => h2:fresh",
+            "p[style-name='Heading 2'] => h3:fresh",
+            "p[style-name='Heading 3'] => h3:fresh",
+          ],
+        }
+      );
+
+      const cleanHtml = DOMPurify.sanitize(
+        result.value,
+        {
+          USE_PROFILES: { html: true },
+        }
+      );
+
+      updateDraft("body", cleanHtml);
+
+      if (!draft.title?.trim()) {
+        const suggestedTitle = file.name
+          .replace(/\.docx$/i, "")
+          .replace(/[-_]+/g, " ");
+
+        updateDraft("title", suggestedTitle);
+      }
+
+      if (result.messages.length > 0) {
+        console.warn(
+          "Word import warnings:",
+          result.messages
+        );
+      }
+    } catch (error) {
+      console.error("Error importing Word document:", error);
+      window.alert(
+        "The Word document could not be imported."
+      );
+    } finally {
+      setImportingDocument(false);
+    }
+  }
+
+  async function handleDocumentInput(event) {
+    const file = event.target.files?.[0];
+
+    await importWordDocument(file);
+
+    event.target.value = "";
   }
 
   function handleSave() {
@@ -303,6 +403,51 @@ export default function PostEditorModal({
                 Article
               </h2>
 
+              <div
+                  className={`admin-document-import${
+                    importingDocument
+                      ? " admin-document-import-busy"
+                      : ""
+                }`}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+
+                  if (importingDocument) return;
+
+                  const file = event.dataTransfer.files?.[0];
+                  importWordDocument(file);
+                }}
+              >
+                <label className="admin-document-import-label">
+                  <input
+                    type="file"
+                    accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={handleDocumentInput}
+                    hidden
+                    disabled={importingDocument}
+                  />
+
+                  <span className="admin-document-import-badge">
+                    DOCX
+                  </span>
+ 
+                  <strong className="admin-document-import-title">
+                    {importingDocument
+                      ? "Importing document..."
+                      : "Drop a Word document here"}
+                  </strong>
+
+                  <span className="admin-document-import-text">
+                    {importingDocument
+                      ? "Converting and cleaning the article text"
+                      : "or click to choose a .docx file"}
+                    </span>
+                  </label>
+                </div>
+
               <RichTextEditor
                 value={draft.body}
                 onChange={(html) =>
@@ -362,30 +507,49 @@ export default function PostEditorModal({
                 />
               </label>
 
+               <div
+                 style={{
+                   marginTop: "22px",
+                   paddingTop: "20px",
+                   borderTop: "1px solid #ded8cf",
+                 }}
+               >
+                 <label className="admin-editor-toggle">
+                   <input
+                     type="checkbox"
+                     checked={draft.featured || false}
+                     onChange={(event) =>
+                       updateDraft(
+                         "featured",
+                         event.target.checked
+                       )
+                     }
+                   />
+
+                   Use as the{" "}
+                   {hasValidCategory ? draft.type : "category"} banner
+                 </label>
+
+                 <label
+                   className="admin-editor-toggle"
+                   style={{ marginTop: "14px" }}
+                 >
+                   <input
+                     type="checkbox"
+                     checked={draft.featuredHome || false}
+                     onChange={(event) =>
+                       updateDraft(
+                         "featuredHome",
+                         event.target.checked
+                       )
+                     }
+                   />
+
+                   Use as the Home banner
+                 </label>
+               </div>
+
                
-
-              <div
-                style={{
-                  marginTop: "22px",
-                  paddingTop: "20px",
-                  borderTop: "1px solid #ded8cf",
-                }}
-              >
-                <label className="admin-editor-toggle">
-                  <input
-                    type="checkbox"
-                    checked={draft.featured || false}
-                    onChange={(event) =>
-                      updateDraft(
-                        "featured",
-                        event.target.checked
-                      )
-                    }
-                  />
-
-                  Use as the {hasValidCategory ? draft.type : "category"} banner
-                </label>
-              </div>
             </section>
 
             <section className="admin-editor-card">
