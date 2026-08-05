@@ -156,8 +156,12 @@ const visiblePosts = useMemo(() => {
   return filtered;
 
 }, [posts, activeCategory, searchQuery]);
-const featuredPost =
-  visiblePosts.find((post) => post.featured) || visiblePosts[0];
+ 
+  const featuredPost =
+    activeCategory === "Home"
+      ? visiblePosts[0]
+      : visiblePosts.find((post) => post.featured) ||
+        visiblePosts[0];
 
 const remainingPosts = visiblePosts.filter(
   (post) => post.id !== featuredPost?.id
@@ -306,57 +310,124 @@ useEffect(() => {
     setEditing(true);
   }
 
-  async function savePost() {
-    if (!draft.title.trim() && !draft.body.trim()) return;
+    async function savePost() {
+      if (!draft.title.trim() && !draft.body.trim()) return;
 
-    const postPayload = {
-  title: draft.title.trim() || "Untitled",
-  body: draft.body || "",
-  excerpt: draft.excerpt || "",
- author: draft.author || "Asher Compton",
-slug: makeSlug(draft.title || "untitled"),
-author_image: draft.authorImage || "",
-author_description: draft.authorDescription || "",
-featured: draft.featured || false,
-  category: draft.type || "Journal",
-  image_url: draft.image || "",
-};
-    const alreadyExists = posts.some((post) => post.id === draft.id);
+      const alreadyExists = posts.some(
+        (post) => post.id === draft.id
+      );
 
-    if (alreadyExists) {
-      const { data, error } = await supabase
-        .from("posts")
-        .update(postPayload)
-        .eq("id", draft.id)
-        .select()
-        .single();
+      const postPayload = {
+        title: draft.title.trim() || "Untitled",
+        body: draft.body || "",
+        excerpt: draft.excerpt || "",
+        author: draft.author || "Asher Compton",
+        slug: makeSlug(draft.title || "untitled"),
+        author_image: draft.authorImage || "",
+        author_description: draft.authorDescription || "",
+        featured: draft.featured || false,
+        category: draft.type || "Journal",
+         
+        image_url: draft.image || "",
+      };
 
-      if (error) {
-        console.error("Error updating post:", error);
-        alert("Could not update post.");
-        return;
+      if (draft.featured) {
+        let clearPreviousBanner = supabase
+          .from("posts")
+          .update({ featured: false })
+          .eq("category", draft.type);
+
+        if (alreadyExists) {
+          clearPreviousBanner = clearPreviousBanner.neq(
+            "id",
+            draft.id
+          );
+        }
+
+        const { error: bannerError } =
+          await clearPreviousBanner;
+
+        if (bannerError) {
+          console.error(
+            "Error updating category banner:",
+            bannerError
+          );
+          alert("Could not update the category banner.");
+          return;
+        }
       }
 
-      setPosts(posts.map((post) => (post.id === draft.id ? mapSupabasePost(data) : post)));
-    } else {
-      const { data, error } = await supabase
-        .from("posts")
-        .insert(postPayload)
-        .select()
-        .single();
+      if (alreadyExists) {
+        const { data, error } = await supabase
+          .from("posts")
+          .update(postPayload)
+          .eq("id", draft.id)
+          .select()
+          .single();
 
-      if (error) {
-        console.error("Error saving post:", error);
-        alert("Could not save post.");
-        return;
+        if (error) {
+          console.error("Error updating post:", error);
+          alert("Could not update post.");
+          return;
+        }
+
+        const updatedPost = mapSupabasePost(data);
+
+        setPosts(
+          posts.map((post) => {
+            if (post.id === draft.id) {
+              return updatedPost;
+            }
+   
+            if (
+              draft.featured &&
+              post.type === draft.type
+            ) {
+              return {
+                ...post,
+                featured: false,
+              };
+            }
+
+            return post;
+          })
+        );
+      } else {
+        const { data, error } = await supabase
+          .from("posts")
+          .insert(postPayload)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error saving post:", error);
+          alert("Could not save post.");
+          return;
+        }
+
+        const newPost = mapSupabasePost(data);
+
+        const updatedPosts = posts.map((post) => {
+          if (
+            draft.featured &&
+            post.type === draft.type
+          ) {
+            return {
+              ...post,
+              featured: false,
+            };
+          }
+
+          return post;
+        });
+
+        setPosts([newPost, ...updatedPosts]);
       }
 
-      setPosts([mapSupabasePost(data), ...posts]);
-    }
-
-    setEditing(false);
-    setDraft(emptyPost());
-  }
+      setEditing(false);
+      setDraft(emptyPost());
+    }       
+    
 
   async function deletePost(id) {
     const { error } = await supabase.from("posts").delete().eq("id", id);
@@ -371,7 +442,7 @@ featured: draft.featured || false,
   }
 
   
-  async function handleImageUpload(event) {
+  async function handleImageUpload(event, field = "image") {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -392,10 +463,9 @@ featured: draft.featured || false,
 
     setDraft((prev) => ({
       ...prev,
-      image: data.publicUrl,
+      [field]: data.publicUrl,
     }));
-  }
-
+    }
 
   if (isAdminPage) {
     return (

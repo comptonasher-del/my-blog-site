@@ -661,33 +661,33 @@ markdownBody: {
     marginTop: "18px",
   },
 
-  modalBackdrop: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.45)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "20px",
-  },
+   modalBackdrop: {
+     position: "fixed",
+     inset: 0,
+     background: "rgba(0,0,0,0.45)",
+     display: "flex",
+     alignItems: "center",
+     justifyContent: "center",
+     padding: "20px",
+   },
 
-  modal: {
-    background: "white",
-    borderRadius: "28px",
-    padding: "28px",
-    width: "100%",
-    maxWidth: "760px",
-    maxHeight: "90vh",
-    overflow: "auto",
-    display: "grid",
-    gap: "16px",
-  },
+   modal: {
+     background: "white",
+     borderRadius: "28px",
+     padding: "28px",
+     width: "100%",
+     maxWidth: "760px",
+     maxHeight: "90vh",
+     overflow: "auto",
+     display: "grid",
+     gap: "16px",
+   },
 
-  modalTop: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+   modalTop: {
+     display: "flex",
+     justifyContent: "space-between",
+     alignItems: "center",
+   },
 
   formGrid: {
     display: "grid",

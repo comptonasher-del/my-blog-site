@@ -445,3 +445,405 @@ body {
     border-radius: 16px !important;
   }
 }
+
+
+/* Admin article editor */
+.admin-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: #f3f1ec;
+}
+
+.admin-editor-shell {
+  height: 100dvh;
+  overflow-y: auto;
+  color: #18212f;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.admin-editor-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 76px;
+  padding: 0 clamp(20px, 4vw, 60px);
+  border-bottom: 1px solid #ded8cf;
+  background: rgba(243, 241, 236, 0.96);
+  backdrop-filter: blur(14px);
+}
+
+.admin-editor-header-copy {
+  min-width: 0;
+}
+
+.admin-editor-eyebrow {
+  margin: 0 0 4px;
+  color: #817568;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-editor-heading {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-editor-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.admin-editor-button {
+  border: 0;
+  padding: 12px 17px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-editor-button-primary {
+  background: #18212f;
+  color: #fffaf3;
+}
+
+.admin-editor-button-secondary {
+  border: 1px solid #cfc6ba;
+  background: transparent;
+  color: #18212f;
+}
+
+.admin-editor-workspace {
+  width: min(1320px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 40px 0 80px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.admin-editor-main,
+.admin-editor-sidebar {
+  min-width: 0;
+}
+
+.admin-editor-main {
+  display: grid;
+  gap: 24px;
+}
+
+ 
+.admin-editor-sidebar {
+  position: sticky;
+  top: 104px;
+  max-height: calc(100dvh - 128px);
+  display: grid;
+  gap: 18px;
+  padding-right: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.admin-editor-card {
+  min-width: 0;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #ded8cf;
+  background: #fffaf3;
+}
+
+.admin-editor-section-title {
+  margin: 0 0 22px;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 20px;
+}
+
+.admin-editor-field {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.admin-editor-field + .admin-editor-field {
+  margin-top: 18px;
+}
+
+.admin-editor-label {
+  color: #6b6258;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.admin-editor-input,
+.admin-editor-select,
+.admin-editor-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8d0c5;
+  border-radius: 0;
+  padding: 13px 14px;
+  background: #fff;
+  color: #18212f;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.admin-editor-input:focus,
+.admin-editor-select:focus,
+.admin-editor-textarea:focus {
+  border-color: #18212f;
+  box-shadow: 0 0 0 2px rgba(24, 33, 47, 0.08);
+}
+
+.admin-editor-title-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #18212f;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  outline: none;
+}
+
+.admin-editor-title-input::placeholder {
+  color: #aaa197;
+}
+
+.admin-editor-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.admin-editor-counter {
+  justify-self: end;
+  color: #817568;
+  font-size: 11px;
+}
+
+.admin-editor-image {
+  width: 100%;
+  max-height: 500px;
+  display: block;
+  object-fit: cover;
+}
+
+.admin-editor-image-placeholder {
+  min-height: 230px;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  border: 1px dashed #aaa197;
+  background: #f8f5f0;
+  color: #6b6258;
+  text-align: center;
+}
+
+.admin-editor-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-editor-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #18212f;
+  padding: 10px 13px;
+  background: #18212f;
+  color: #fffaf3;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-editor-remove {
+  border: 1px solid #cfc6ba;
+  padding: 10px 13px;
+  background: transparent;
+  color: #6b6258;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.admin-editor-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.admin-editor-avatar {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 64px;
+  border-radius: 50%;
+  background: #18212f;
+  color: #fffaf3;
+  object-fit: cover;
+  font-weight: 700;
+}
+
+.admin-editor-author-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-editor-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  color: #18212f;
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.admin-editor-toggle input {
+  margin-top: 3px;
+  accent-color: #18212f;
+}
+
+.admin-rich-editor {
+  min-width: 0;
+  border: 1px solid #d8d0c5;
+  background: #fff;
+}
+
+.admin-rich-toolbar {
+  position: sticky;
+  top: 76px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 11px;
+  border-bottom: 1px solid #ded8cf;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.admin-rich-button {
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  background: transparent;
+  color: #18212f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-rich-button:hover,
+.admin-rich-button-active {
+  border-color: #d8d0c5;
+  background: #f3f1ec;
+}
+
+.admin-rich-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.admin-rich-editor .ProseMirror {
+  min-height: 520px;
+  padding: clamp(22px, 4vw, 48px);
+  outline: none;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.admin-rich-editor .ProseMirror blockquote {
+  margin: 24px 0;
+  padding: 4px 0 4px 22px;
+  border-left: 3px solid #b88954;
+  color: #4f5967;
+  font-style: italic;
+}
+
+ @media (max-width: 900px) {
+  .admin-editor-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-editor-sidebar {
+    position: static;
+    max-height: none;
+    padding-right: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-editor-header {
+    min-height: 68px;
+    padding: 0 16px;
+  }
+
+  .admin-editor-heading {
+    font-size: 16px;
+  }
+
+  .admin-editor-button {
+    padding: 10px 12px;
+  }
+
+  .admin-editor-workspace {
+    width: calc(100% - 24px);
+    padding: 20px 0 48px;
+    gap: 16px;
+  }
+
+  .admin-editor-card {
+    padding: 20px;
+  }
+
+  .admin-rich-toolbar {
+    top: 68px;
+  }
+
+  .admin-rich-editor .ProseMirror {
+    min-height: 360px;
+    padding: 20px;
+    font-size: 17px;
+  }
+}
+
+.admin-rich-style-select {
+  border: 1px solid #d8d0c5;
+  padding: 8px 30px 8px 10px;
+  background: #fff;
+  color: #18212f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}

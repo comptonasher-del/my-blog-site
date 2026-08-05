@@ -1,6 +1,5 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import styles from "../styles/styles";
 import { CONTENT_CATEGORIES } from "../config/contentCategories";
 
 function RichTextEditor({ value, onChange }) {
@@ -14,32 +13,51 @@ function RichTextEditor({ value, onChange }) {
 
   if (!editor) return null;
 
+  const currentTextStyle = editor.isActive(
+    "heading",
+    { level: 2 }
+  )
+    ? "heading2"
+    : editor.isActive("heading", { level: 3 })
+      ? "heading3"
+      : "paragraph";
+
+  function changeTextStyle(event) {
+    const nextStyle = event.target.value;
+
+    if (nextStyle === "heading2") {
+      editor.chain().focus().setHeading({ level: 2 }).run();
+    } else if (nextStyle === "heading3") {
+      editor.chain().focus().setHeading({ level: 3 }).run();
+    } else {
+      editor.chain().focus().setParagraph().run();
+    }
+  }
+
+  function toolbarStyle(isActive) {
+    return `admin-rich-button${
+      isActive ? " admin-rich-button-active" : ""
+    }`;
+  }
+
   return (
-    <div style={styles.richTextEditor}>
-      <div style={styles.editorToolbar}>
-        <button
-          type="button"
-          style={styles.editorButton}
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
+    <div className="admin-rich-editor">
+      <div className="admin-rich-toolbar">
+         
+        <select
+          className="admin-rich-style-select"
+          value={currentTextStyle}
+          onChange={changeTextStyle}
+          aria-label="Text style"
         >
-          H2
-        </button>
+          <option value="paragraph">Paragraph</option>
+          <option value="heading2">Section heading</option>
+          <option value="heading3">Subheading</option>
+        </select>
 
         <button
           type="button"
-          style={styles.editorButton}
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
-        >
-          H3
-        </button>
-
-        <button
-          type="button"
-          style={styles.editorButton}
+          className={toolbarStyle(editor.isActive("bold"))}
           onClick={() => editor.chain().focus().toggleBold().run()}
         >
           Bold
@@ -47,7 +65,7 @@ function RichTextEditor({ value, onChange }) {
 
         <button
           type="button"
-          style={styles.editorButton}
+          className={toolbarStyle(editor.isActive("italic"))}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         >
           Italic
@@ -55,23 +73,67 @@ function RichTextEditor({ value, onChange }) {
 
         <button
           type="button"
-          style={styles.editorButton}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={toolbarStyle(editor.isActive("bulletList"))}
+          onClick={() =>
+            editor.chain().focus().toggleBulletList().run()
+          }
         >
           Bullets
         </button>
 
         <button
           type="button"
-          style={styles.editorButton}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={toolbarStyle(editor.isActive("orderedList"))}
+          onClick={() =>
+            editor.chain().focus().toggleOrderedList().run()
+          }
         >
           Numbers
+        </button>
+
+        <button
+          type="button"
+          className={toolbarStyle(editor.isActive("blockquote"))}
+          onClick={() =>
+            editor.chain().focus().toggleBlockquote().run()
+          }
+        >
+          Quote
+        </button>
+
+        <button
+          type="button"
+          className="admin-rich-button"
+          disabled={!editor.can().chain().focus().undo().run()}
+          onClick={() => editor.chain().focus().undo().run()}
+        >
+          Undo
+        </button>
+
+        <button
+          type="button"
+          className="admin-rich-button"
+          disabled={!editor.can().chain().focus().redo().run()}
+          onClick={() => editor.chain().focus().redo().run()}
+        >
+          Redo
         </button>
       </div>
 
       <EditorContent editor={editor} />
     </div>
+  );
+}
+
+function getInitials(name = "") {
+  return (
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "A"
   );
 }
 
@@ -83,19 +145,30 @@ export default function PostEditorModal({
   closeEditor,
   handleImageUpload,
 }) {
-  const isExistingPost = posts.some((post) => post.id === draft.id);
-  const hasValidCategory = CONTENT_CATEGORIES.includes(draft.type);
+  const isExistingPost = posts.some(
+    (post) => post.id === draft.id
+  );
+
+  const hasValidCategory =
+    CONTENT_CATEGORIES.includes(draft.type);
 
   function updateDraft(field, value) {
-    setDraft({
-      ...draft,
+    setDraft((currentDraft) => ({
+      ...currentDraft,
       [field]: value,
-    });
+    }));
   }
 
   function handleSave() {
-    if (!CONTENT_CATEGORIES.includes(draft.type)) {
-      window.alert("Please select Journal, Essays, or Reviews.");
+    if (!draft.title?.trim()) {
+      window.alert("Please add an article title.");
+      return;
+    }
+
+    if (!hasValidCategory) {
+      window.alert(
+        "Please select Journal, Essays, or Reviews."
+      );
       return;
     }
 
@@ -103,141 +176,303 @@ export default function PostEditorModal({
   }
 
   return (
-    <div style={styles.modalBackdrop}>
-      <div style={styles.modal}>
-        <div style={styles.modalTop}>
-          <h2>{isExistingPost ? "Edit post" : "New post"}</h2>
+    <div className="admin-editor-overlay">
+      <div className="admin-editor-shell">
+        <header className="admin-editor-header">
+          <div className="admin-editor-header-copy">
+            <p className="admin-editor-eyebrow">
+              {isExistingPost
+                ? "Editing article"
+                : "New article"}
+            </p>
 
-          <button style={styles.ghostButton} onClick={closeEditor}>
-            ✕
-          </button>
-        </div>
+            <h1 className="admin-editor-heading">
+              {draft.title || "Untitled article"}
+            </h1>
+          </div>
 
-        <input
-          style={styles.input}
-          value={draft.title}
-          onChange={(event) => updateDraft("title", event.target.value)}
-          placeholder="Title"
-        />
-
-        <input
-          style={styles.input}
-          value={draft.author || ""}
-          onChange={(event) => updateDraft("author", event.target.value)}
-          placeholder="Author name"
-        />
-
-        <input
-          style={styles.input}
-          value={draft.authorImage || ""}
-          onChange={(event) => updateDraft("authorImage", event.target.value)}
-          placeholder="Author photo URL"
-        />
-
-        <input
-          style={styles.input}
-          value={draft.authorDescription || ""}
-          onChange={(event) =>
-            updateDraft("authorDescription", event.target.value)
-          }
-          placeholder="Author description, like Pastor, Frisco, Texas"
-        />
-
-        <label style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={draft.featured || false}
-            onChange={(event) =>
-              updateDraft("featured", event.target.checked)
-            }
-          />
-          Feature this article on the homepage
-        </label>
-
-        <div style={styles.formGrid}>           
-          <label>
-            Category
-
-            <select
-              style={styles.select}
-              value={hasValidCategory ? draft.type : ""}
-              onChange={(event) =>
-                updateDraft("type", event.target.value)
-              }
+          <div className="admin-editor-actions">
+            <button
+              type="button"
+              className="admin-editor-button admin-editor-button-secondary"
+              onClick={closeEditor}
             >
-              <option value="" disabled>
-                {draft.type
-                  ? `Needs reassignment — currently ${draft.type}`
-                  : "Select a category"}
-              </option>
+              Cancel
+            </button>
 
-              {CONTENT_CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </label>
+            <button
+              type="button"
+              className="admin-editor-button admin-editor-button-primary"
+              onClick={handleSave}
+            >
+              Save article
+            </button>
+          </div>
+        </header>
 
-          <input
-            style={styles.input}
-            type="date"
-            value={draft.date}
-            onChange={(event) => updateDraft("date", event.target.value)}
-          />
+        <div className="admin-editor-workspace">
+          <main className="admin-editor-main">
+            <section className="admin-editor-card">
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Article title
+                </span>
 
-          <select
-            style={styles.select}
-            value={draft.rating}
-            onChange={(event) =>
-              updateDraft("rating", Number(event.target.value))
-            }
-          >
-            <option value={0}>No rating</option>
+                <input
+                  className="admin-editor-title-input"
+                  value={draft.title || ""}
+                  onChange={(event) =>
+                    updateDraft("title", event.target.value)
+                  }
+                  placeholder="Give this article a title"
+                  autoFocus
+                />
+              </label>
+            </section>
 
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <option key={rating} value={rating}>
-                {rating}/5
-              </option>
-            ))}
-          </select>
-        </div>
+            <section className="admin-editor-card">
+              <h2 className="admin-editor-section-title">
+                Featured image
+              </h2>
 
-        <label style={styles.uploadBox}>
-          Add photo
+              {draft.image ? (
+                <img
+                  className="admin-editor-image"
+                  src={draft.image}
+                  alt=""
+                />
+              ) : (
+                <div className="admin-editor-image-placeholder">
+                  Add a strong image that represents the
+                  article and works well on the homepage.
+                </div>
+              )}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ display: "none" }}
-          />
-        </label>
+              <div className="admin-editor-image-actions">
+                <label className="admin-editor-upload">
+                  {draft.image
+                    ? "Replace image"
+                    : "Upload image"}
 
-        {draft.image && (
-          <img src={draft.image} alt="Draft" style={styles.previewImage} />
-        )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      handleImageUpload(event, "image")
+                    }
+                    hidden
+                  />
+                </label>
 
-        <textarea
-          style={{ ...styles.textarea, minHeight: "100px" }}
-          value={draft.excerpt || ""}
-          onChange={(event) => updateDraft("excerpt", event.target.value)}
-          placeholder="Short homepage excerpt..."
-        />
+                {draft.image && (
+                  <button
+                    type="button"
+                    className="admin-editor-remove"
+                    onClick={() => updateDraft("image", "")}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </section>
 
-        <RichTextEditor
-          value={draft.body}
-          onChange={(html) => updateDraft("body", html)}
-        />
+            <section className="admin-editor-card">
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Homepage excerpt
+                </span>
 
-        <div style={styles.buttonRow}>
-          <button style={styles.primaryButton} onClick={handleSave}>
-            Save post
-          </button>
+                <textarea
+                  className="admin-editor-textarea"
+                  value={draft.excerpt || ""}
+                  maxLength={320}
+                  onChange={(event) =>
+                    updateDraft("excerpt", event.target.value)
+                  }
+                  placeholder="Write a short introduction that invites readers into the article."
+                />
 
-          <button style={styles.secondaryButton} onClick={closeEditor}>
-            Cancel
-          </button>
+                <span className="admin-editor-counter">
+                  {(draft.excerpt || "").length}/320
+                </span>
+              </label>
+            </section>
+
+            <section className="admin-editor-card">
+              <h2 className="admin-editor-section-title">
+                Article
+              </h2>
+
+              <RichTextEditor
+                value={draft.body}
+                onChange={(html) =>
+                  updateDraft("body", html)
+                }
+              />
+            </section>
+          </main>
+
+          <aside className="admin-editor-sidebar">
+            <section className="admin-editor-card">
+              <h2 className="admin-editor-section-title">
+                Publication
+              </h2>
+
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Category
+                </span>
+
+                <select
+                  className="admin-editor-select"
+                  value={
+                    hasValidCategory ? draft.type : ""
+                  }
+                  onChange={(event) =>
+                    updateDraft("type", event.target.value)
+                  }
+                >
+                  <option value="" disabled>
+                    Select a category
+                  </option>
+
+                  {CONTENT_CATEGORIES.map((category) => (
+                    <option
+                      key={category}
+                      value={category}
+                    >
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Publish date
+                </span>
+
+                <input
+                  className="admin-editor-input"
+                  type="date"
+                  value={draft.date || ""}
+                  onChange={(event) =>
+                    updateDraft("date", event.target.value)
+                  }
+                />
+              </label>
+
+               
+
+              <div
+                style={{
+                  marginTop: "22px",
+                  paddingTop: "20px",
+                  borderTop: "1px solid #ded8cf",
+                }}
+              >
+                <label className="admin-editor-toggle">
+                  <input
+                    type="checkbox"
+                    checked={draft.featured || false}
+                    onChange={(event) =>
+                      updateDraft(
+                        "featured",
+                        event.target.checked
+                      )
+                    }
+                  />
+
+                  Use as the {hasValidCategory ? draft.type : "category"} banner
+                </label>
+              </div>
+            </section>
+
+            <section className="admin-editor-card">
+              <h2 className="admin-editor-section-title">
+                Author
+              </h2>
+
+              <div className="admin-editor-author">
+                {draft.authorImage ? (
+                  <img
+                    className="admin-editor-avatar"
+                    src={draft.authorImage}
+                    alt={draft.author || "Author"}
+                  />
+                ) : (
+                  <div className="admin-editor-avatar">
+                    {getInitials(draft.author)}
+                  </div>
+                )}
+
+                <div className="admin-editor-author-actions">
+                  <label className="admin-editor-upload">
+                    {draft.authorImage
+                      ? "Replace photo"
+                      : "Upload photo"}
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        handleImageUpload(
+                          event,
+                          "authorImage"
+                        )
+                      }
+                      hidden
+                    />
+                  </label>
+
+                  {draft.authorImage && (
+                    <button
+                      type="button"
+                      className="admin-editor-remove"
+                      onClick={() =>
+                        updateDraft("authorImage", "")
+                      }
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Author name
+                </span>
+
+                <input
+                  className="admin-editor-input"
+                  value={draft.author || ""}
+                  onChange={(event) =>
+                    updateDraft("author", event.target.value)
+                  }
+                  placeholder="Author name"
+                />
+              </label>
+
+              <label className="admin-editor-field">
+                <span className="admin-editor-label">
+                  Author description
+                </span>
+
+                <textarea
+                  className="admin-editor-textarea"
+                  value={draft.authorDescription || ""}
+                  onChange={(event) =>
+                    updateDraft(
+                      "authorDescription",
+                      event.target.value
+                    )
+                  }
+                  placeholder="Role, location, or a short author bio"
+                />
+              </label>
+            </section>
+          </aside>
         </div>
       </div>
     </div>
