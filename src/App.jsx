@@ -701,10 +701,11 @@ useEffect(() => {
   <div style={styles.card}>Loading articles...</div>
 )}
           {featuredPost && (
-             <FeaturedArticle
-               post={featuredPost}
-               isAdmin={false}
-             />
+              <FeaturedArticle
+                post={featuredPost}
+                isAdmin={false}
+                incrementPostMetric={incrementPostMetric}
+              />
           )}
 
           {displayedPosts.length > 0 && (

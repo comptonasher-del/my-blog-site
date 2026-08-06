@@ -199,6 +199,13 @@ const adminStyles = {
     fontSize: "34px",
   },
 
+  statHelp: {
+    margin: "10px 0 0",
+    color: "#817568",
+    fontSize: "11px",
+    lineHeight: 1.45,
+  },
+
   dashboardGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
@@ -262,6 +269,35 @@ const adminStyles = {
     margin: 0,
     color: "#817568",
     fontSize: "12px",
+  },
+
+  postMetrics: {
+    flex: "1 1 330px",
+    maxWidth: "430px",
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(80px, 1fr))",
+    gap: "8px",
+  },
+
+  postMetric: {
+    padding: "12px",
+    border: "1px solid #e5dfd6",
+    background: "#f8f5f0",
+  },
+
+  postMetricLabel: {
+    margin: "0 0 6px",
+    color: "#817568",
+    fontSize: "8px",
+    fontWeight: 700,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+  },
+
+  postMetricValue: {
+    margin: 0,
+    fontFamily: "'Libre Baskerville', Georgia, serif",
+    fontSize: "22px",
   },
 
   postActions: {
@@ -467,25 +503,39 @@ export default function AdminPage({
           <div style={adminStyles.statCard}>
             <p style={adminStyles.statLabel}>Articles</p>
             <p style={adminStyles.statValue}>{stats.posts}</p>
-          </div>
-
-          <div style={adminStyles.statCard}>
-            <p style={adminStyles.statLabel}>Views</p>
-            <p style={adminStyles.statValue}>{stats.views}</p>
-          </div>
-
-          <div style={adminStyles.statCard}>
-            <p style={adminStyles.statLabel}>Read clicks</p>
-            <p style={adminStyles.statValue}>
-              {stats.readClicks}
+            <p style={adminStyles.statHelp}>
+              Published articles
             </p>
           </div>
 
           <div style={adminStyles.statCard}>
-            <p style={adminStyles.statLabel}>Shares</p>
-            <p style={adminStyles.statValue}>{stats.shares}</p>
+            <p style={adminStyles.statLabel}>Total views</p>
+            <p style={adminStyles.statValue}>{stats.views}</p>
+            <p style={adminStyles.statHelp}>
+              Article page loads
+            </p>
           </div>
-        </section>
+
+         <div style={adminStyles.statCard}>
+           <p style={adminStyles.statLabel}>
+             On-site opens
+           </p>
+           <p style={adminStyles.statValue}>
+             {stats.readClicks}
+           </p>
+           <p style={adminStyles.statHelp}>
+             Clicks from FOTN cards and banners
+           </p>
+        </div>
+
+      <div style={adminStyles.statCard}>
+        <p style={adminStyles.statLabel}>Shares</p>
+        <p style={adminStyles.statValue}>{stats.shares}</p>
+        <p style={adminStyles.statHelp}>
+          Share-button uses
+        </p>
+      </div>
+     </section>
 
         <div style={adminStyles.dashboardGrid}>
           <section
@@ -530,6 +580,35 @@ export default function AdminPage({
                         {post.date || "No date"}
                         {post.featured ? " · Featured" : ""}
                       </p>
+                    </div>
+
+		    <div style={adminStyles.postMetrics}>
+                      <div style={adminStyles.postMetric}>
+                        <p style={adminStyles.postMetricLabel}>
+                          Views
+                        </p>
+                        <p style={adminStyles.postMetricValue}>
+                          {Number(post.views || 0)}
+                        </p>
+                      </div>
+
+                      <div style={adminStyles.postMetric}>
+                        <p style={adminStyles.postMetricLabel}>
+                          On-site opens
+                        </p>
+                        <p style={adminStyles.postMetricValue}>
+                          {Number(post.readClicks || 0)}
+                        </p>
+                      </div>
+
+                      <div style={adminStyles.postMetric}>
+                        <p style={adminStyles.postMetricLabel}>
+                          Shares
+                        </p>
+                        <p style={adminStyles.postMetricValue}>
+                          {Number(post.shares || 0)}
+                        </p>
+                      </div>
                     </div>
 
                     <div style={adminStyles.postActions}>

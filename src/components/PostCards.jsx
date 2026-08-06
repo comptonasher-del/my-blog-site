@@ -7,9 +7,15 @@ export function FeaturedArticle({
   isAdmin,
   onEdit,
   onDelete,
-}) {
+  incrementPostMetric,
+}) { 
+
   const isLongTitle = post.title.length > 55;
   const readTime = getReadingTime(post.body);
+  async function openPost() {
+    await incrementPostMetric(post.id, "read_clicks");
+    window.location.href = `/post/${post.slug || post.id}`;
+  }
   return (
     <article
       style={{
@@ -28,9 +34,7 @@ export function FeaturedArticle({
             }
           : {}),
       }}
-      onClick={() => {
-        window.location.href = `/post/${post.slug || post.id}`;
-      }}
+      onClick={openPost}
     >
       <div
   	style={{
@@ -81,6 +85,10 @@ export function ArticleCard({
   const [hovered, setHovered] = useState(false);
   const readTime = getReadingTime(post.body);
 
+  async function openPost() {
+    await incrementPostMetric(post.id, "read_clicks");
+    window.location.href = `/post/${post.slug || post.id}`;
+  }
 
   return (
     <article
@@ -120,9 +128,11 @@ export function ArticleCard({
         <a
           href={`/post/${post.slug || post.id}`}
           style={styles.readLink}
-          onClick={() =>
-            incrementPostMetric(post.id, "read_clicks")
-          }
+          onClick={async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            await openPost();
+          }} 
         >
           Read article →
         </a>
