@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { supabase } from "./lib/supabase";
 import styles from "./styles/styles";
 import {
@@ -14,6 +19,11 @@ import {
   AuthorBlock,
   ShareButton,
 } from "./components/ArticleDetails";
+import {
+  consumeArticleSessionId,
+  createArticleSessionId,
+  trackArticleEvent,
+} from "./utils/analytics";
 import Footer from "./components/Footer";
 import AboutPage from "./components/AboutPage";
 import SiteHeader from "./components/SiteHeader";
@@ -63,7 +73,19 @@ useEffect(() => {
    
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(emptyPost());
+  
+  const articleSessionIdRef = useRef(null);
+  const trackedViewPostIdRef = useRef(null);
+  const [
+    activeArticleSessionId,
+    setActiveArticleSessionId,
+  ] = useState(null);
 
+  const readingProgressRef = useRef({
+    postId: null,
+    read50: false,
+    read90: false,
+  });  
   const [activeCategory, setActiveCategory] = useState(
     initialView === "about" ? "About" : initialCategory
   );
@@ -248,12 +270,139 @@ useEffect(() => {
     document.title = siteConfig.site_title || "From One to the Next";
   }
 }, [isPostPage, selectedPost?.title, siteConfig.site_title]);
-useEffect(() => {
-  if (isPostPage && selectedPost?.id && !session) {
-    incrementPostMetric(selectedPost.id, "views");
-  }
-}, [isPostPage, selectedPost?.id, session]);
 
+useEffect(() => {
+  if (
+    !authReady ||
+    !isPostPage ||
+    !selectedPost?.id ||
+    session
+  ) {
+    return;
+  }
+
+  if (
+    trackedViewPostIdRef.current === selectedPost.id
+  ) {
+    return;
+  }
+
+  trackedViewPostIdRef.current = selectedPost.id;
+
+  const sessionId =
+    consumeArticleSessionId(selectedPost.id) ||
+    createArticleSessionId();  
+
+  articleSessionIdRef.current = sessionId;
+  setActiveArticleSessionId(sessionId);
+  
+  incrementPostMetric(selectedPost.id, "views");
+
+  trackArticleEvent({
+    postId: selectedPost.id,
+    sessionId,
+    eventType: "view",
+  });
+}, [
+  authReady,
+  isPostPage,
+  selectedPost?.id,
+  session,
+]);
+
+useEffect(() => {
+  if (
+    !authReady ||
+    !isPostPage ||
+    !selectedPost?.id ||
+    session
+  ) {
+    return;
+  }
+
+  const articleBody =
+    document.querySelector(".article-body");
+
+  const articleSessionId =
+    articleSessionIdRef.current;
+
+  if (!articleBody || !articleSessionId) {
+    return;
+  }
+
+  if (
+    readingProgressRef.current.postId !==
+    selectedPost.id
+  ) {
+    readingProgressRef.current = {
+      postId: selectedPost.id,
+      read50: false,
+      read90: false,
+    };
+  }
+
+  function checkReadingProgress() {
+    const articleTop =
+      articleBody.getBoundingClientRect().top +
+      window.scrollY;
+
+    const articleHeight = articleBody.offsetHeight;
+
+    if (!articleHeight) return;
+
+    const currentPosition =
+      window.scrollY + window.innerHeight;
+
+    const progress =
+      (currentPosition - articleTop) / articleHeight;
+
+    if (
+      progress >= 0.5 &&
+      !readingProgressRef.current.read50
+    ) {
+      readingProgressRef.current.read50 = true;
+
+      trackArticleEvent({
+        postId: selectedPost.id,
+        sessionId: articleSessionId,
+        eventType: "read_50",
+      });
+    }
+
+    if (
+      progress >= 0.9 &&
+      !readingProgressRef.current.read90
+    ) {
+      readingProgressRef.current.read90 = true;
+
+      trackArticleEvent({
+        postId: selectedPost.id,
+        sessionId: articleSessionId,
+        eventType: "read_90",
+      });
+    }
+  }
+
+  window.addEventListener(
+    "scroll",
+    checkReadingProgress,
+    { passive: true }
+  );
+
+  checkReadingProgress();
+
+  return () => {
+    window.removeEventListener(
+      "scroll",
+      checkReadingProgress
+    );
+  };
+}, [
+  authReady,
+  isPostPage,
+  selectedPost?.id,
+  session,
+]);
 
   async function incrementPostMetric(postId, field) {
   const { error } = await supabase.rpc("increment_post_metric", {
@@ -595,7 +744,11 @@ useEffect(() => {
     )}
 <div style={styles.articleMetaRow}>
   <AuthorBlock post={selectedPost} />
- <ShareButton post={selectedPost} incrementPostMetric={incrementPostMetric} />
+  <ShareButton
+    post={selectedPost}
+    incrementPostMetric={incrementPostMetric}
+    articleSessionId={activeArticleSessionId}
+  />  
 </div>
   </div>
 
@@ -625,6 +778,7 @@ useEffect(() => {
       <ShareButton
         post={selectedPost}
         incrementPostMetric={incrementPostMetric}
+        articleSessionId={activeArticleSessionId}
       />
 
       <button

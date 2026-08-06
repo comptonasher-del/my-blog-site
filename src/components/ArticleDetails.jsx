@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/styles";
 
+import {
+  createArticleSessionId,
+  trackArticleEvent,
+} from "../utils/analytics";
+
 export function ShareButton({
   post,
   incrementPostMetric,
+  articleSessionId,
 }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -80,10 +86,25 @@ export function ShareButton({
   }, [open]);
 
   async function trackShare() {
+    const sessionId =
+      articleSessionId || createArticleSessionId();
+
+    const trackingTasks = [
+      trackArticleEvent({
+        postId: post.id,
+        sessionId,
+        eventType: "share",
+      }),
+    ];
+
     if (incrementPostMetric) {
-      await incrementPostMetric(post.id, "shares");
+      trackingTasks.push(
+        incrementPostMetric(post.id, "shares")
+      );
     }
-  }
+
+    await Promise.all(trackingTasks);
+  }  
 
   async function shareWithDevice() {
     try {

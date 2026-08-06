@@ -1,6 +1,11 @@
-import { useMemo } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import PostEditorModal from "../components/PostEditorModal";
 import styles from "../styles/styles";
+import { supabase } from "../lib/supabase";
 
 const adminStyles = {
   page: {
@@ -272,11 +277,15 @@ const adminStyles = {
   },
 
   postMetrics: {
-    flex: "1 1 330px",
-    maxWidth: "430px",
+    flex: "1 1 560px",
+    width: "100%",
+    minWidth: 0,
+    maxWidth: "620px",
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(80px, 1fr))",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(min(110px, 100%), 1fr))",
     gap: "8px",
+    boxSizing: "border-box",
   },
 
   postMetric: {
@@ -353,6 +362,76 @@ export default function AdminPage({
   closeEditor,
   handleImageUpload,
 }) {
+
+  const [articleEvents, setArticleEvents] =
+    useState([]);
+
+  const [loadingAnalytics, setLoadingAnalytics] =
+    useState(true);
+  const [analyticsRange, setAnalyticsRange] =
+    useState("30");
+
+  useEffect(() => {
+    if (!session) {
+      setArticleEvents([]);
+      setLoadingAnalytics(false);
+      return;
+    }
+
+    let isActive = true;
+
+    async function loadArticleEvents() {
+      setLoadingAnalytics(true);
+
+      const { data, error } = await supabase
+        .from("article_events")
+        .select(
+          "post_id, visitor_id, session_id, event_type, created_at"
+        )
+        .order("created_at", { ascending: false });
+
+      if (!isActive) return;
+
+      if (error) {
+        console.error(
+          "Error loading article analytics:",
+          error
+        );
+
+        setArticleEvents([]);
+      } else {
+        setArticleEvents(data || []);
+      }
+
+      setLoadingAnalytics(false);
+    }
+
+    loadArticleEvents();
+
+    return () => {
+      isActive = false;
+    };
+  }, [session]);
+
+  const filteredArticleEvents = useMemo(() => {
+    if (analyticsRange === "all") {
+      return articleEvents;
+    }
+
+    const numberOfDays = Number(analyticsRange);
+
+    const cutoffTime =
+      Date.now() -
+      numberOfDays * 24 * 60 * 60 * 1000;
+
+    return articleEvents.filter((event) => {
+      return (
+        new Date(event.created_at).getTime() >=
+        cutoffTime
+      );
+    });
+  }, [articleEvents, analyticsRange]);
+
   const stats = useMemo(() => {
     return {
       posts: posts.length,
@@ -370,6 +449,139 @@ export default function AdminPage({
       ),
     };
   }, [posts]);
+
+  const analyticsStats = useMemo(() => {
+    const viewEvents = filteredArticleEvents.filter(
+      (event) => event.event_type === "view"
+    );
+
+    const viewSessions = new Set(
+      viewEvents
+        .map((event) => event.session_id)
+        .filter(Boolean)
+    );
+
+    const uniqueReaders = new Set(
+      viewEvents
+        .map((event) => event.visitor_id)
+        .filter(Boolean)
+    );
+
+    const halfwaySessions = new Set(
+      filteredArticleEvents
+        .filter(
+          (event) => event.event_type === "read_50"
+        )
+        .map((event) => event.session_id)
+        .filter((sessionId) =>
+          viewSessions.has(sessionId)
+        )
+    );
+
+    const completedSessions = new Set(
+      filteredArticleEvents
+        .filter(
+          (event) => event.event_type === "read_90"
+        )
+        .map((event) => event.session_id)
+        .filter((sessionId) =>
+          viewSessions.has(sessionId)
+        )
+    );
+
+    const percentage = (amount, total) => {
+      if (total === 0) return 0;
+
+      return Math.round((amount / total) * 100);
+    };
+
+    return {
+      uniqueReaders: uniqueReaders.size,
+      visits: viewSessions.size,
+      halfwayRate: percentage(
+        halfwaySessions.size,
+        viewSessions.size
+      ),
+      completionRate: percentage(
+        completedSessions.size,
+        viewSessions.size
+      ),
+      shares: filteredArticleEvents.filter(
+        (event) => event.event_type === "share"
+      ).length,
+    };
+  }, [articleEvents]);
+
+    function getPostAnalytics(postId) {
+    const postEvents = filteredArticleEvents.filter(
+      (event) =>
+        String(event.post_id) === String(postId)
+    );
+
+    const viewSessions = new Set(
+      postEvents
+        .filter(
+          (event) => event.event_type === "view"
+        )
+        .map((event) => event.session_id)
+        .filter(Boolean)
+    );
+
+    const uniqueReaders = new Set(
+      postEvents
+        .filter(
+          (event) => event.event_type === "view"
+        )
+        .map((event) => event.visitor_id)
+        .filter(Boolean)
+    );
+
+    const halfwaySessions = new Set(
+      postEvents
+        .filter(
+          (event) =>
+            event.event_type === "read_50"
+        )
+        .map((event) => event.session_id)
+        .filter((sessionId) =>
+          viewSessions.has(sessionId)
+        )
+    );
+
+    const completedSessions = new Set(
+      postEvents
+        .filter(
+          (event) =>
+            event.event_type === "read_90"
+        )
+        .map((event) => event.session_id)
+        .filter((sessionId) =>
+          viewSessions.has(sessionId)
+        )
+    );
+
+    const percentage = (amount) => {
+      if (viewSessions.size === 0) return 0;
+
+      return Math.round(
+        (amount / viewSessions.size) * 100
+      );
+    };
+
+    return {
+      uniqueReaders: uniqueReaders.size,
+      visits: viewSessions.size,
+      halfwayRate: percentage(
+        halfwaySessions.size
+      ),
+      completionRate: percentage(
+        completedSessions.size
+      ),
+      shares: postEvents.filter(
+        (event) => event.event_type === "share"
+      ).length,
+    };
+  }
 
   function confirmDelete(post) {
     const confirmed = window.confirm(
@@ -499,43 +711,126 @@ export default function AdminPage({
           </p>
         </div>
 
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "16px",
+          }}
+        >
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            color: "#6b6258",
+            fontSize: "12px",
+            fontWeight: 600,
+          }}
+        >
+          Analytics period
+
+          <select
+            value={analyticsRange}
+            onChange={(event) =>
+              setAnalyticsRange(event.target.value)
+          }
+          style={{
+            border: "1px solid #d8d0c5",
+            padding: "10px 32px 10px 12px",
+            background: "#fffaf3",
+            color: "#18212f",
+            font: "inherit",
+            cursor: "pointer",
+          }}
+        >
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="all">All time</option>
+          </select>
+        </label>
+      </div>
+
         <section style={adminStyles.statsGrid}>
           <div style={adminStyles.statCard}>
             <p style={adminStyles.statLabel}>Articles</p>
-            <p style={adminStyles.statValue}>{stats.posts}</p>
+            <p style={adminStyles.statValue}>
+              {stats.posts}
+            </p>
             <p style={adminStyles.statHelp}>
               Published articles
             </p>
           </div>
-
+        
           <div style={adminStyles.statCard}>
-            <p style={adminStyles.statLabel}>Total views</p>
-            <p style={adminStyles.statValue}>{stats.views}</p>
+            <p style={adminStyles.statLabel}>
+              Unique readers
+            </p>
+            <p style={adminStyles.statValue}>
+              {loadingAnalytics
+                ? "—"
+                : analyticsStats.uniqueReaders}
+            </p>
             <p style={adminStyles.statHelp}>
-              Article page loads
+              Approximate individual readers
             </p>
           </div>
 
-         <div style={adminStyles.statCard}>
-           <p style={adminStyles.statLabel}>
-             On-site opens
-           </p>
-           <p style={adminStyles.statValue}>
-             {stats.readClicks}
-           </p>
-           <p style={adminStyles.statHelp}>
-             Clicks from FOTN cards and banners
-           </p>
-        </div>
+          <div style={adminStyles.statCard}>
+            <p style={adminStyles.statLabel}>
+              Article visits
+            </p>
+            <p style={adminStyles.statValue}>
+              {loadingAnalytics
+                ? "—"
+                : analyticsStats.visits}
+            </p>
+            <p style={adminStyles.statHelp}>
+              Individual reading sessions
+            </p>
+          </div>
 
-      <div style={adminStyles.statCard}>
-        <p style={adminStyles.statLabel}>Shares</p>
-        <p style={adminStyles.statValue}>{stats.shares}</p>
-        <p style={adminStyles.statHelp}>
-          Share-button uses
-        </p>
-      </div>
-     </section>
+          <div style={adminStyles.statCard}>
+            <p style={adminStyles.statLabel}>
+              Reached halfway
+            </p>
+            <p style={adminStyles.statValue}>
+              {loadingAnalytics
+                ? "—"
+                : `${analyticsStats.halfwayRate}%`}
+            </p>
+            <p style={adminStyles.statHelp}>
+              Visits that reached 50%
+            </p>
+          </div>
+
+          <div style={adminStyles.statCard}>
+            <p style={adminStyles.statLabel}>
+              Completed
+            </p>
+            <p style={adminStyles.statValue}>
+              {loadingAnalytics
+                ? "—"
+                : `${analyticsStats.completionRate}%`}
+            </p>
+            <p style={adminStyles.statHelp}>
+              Visits that reached 90%
+            </p>
+          </div>
+
+          <div style={adminStyles.statCard}>
+            <p style={adminStyles.statLabel}>Shares</p>
+            <p style={adminStyles.statValue}>
+              {loadingAnalytics
+                ? "—"
+                : analyticsStats.shares}
+            </p>
+            <p style={adminStyles.statHelp}>
+              Recorded share actions
+            </p>
+          </div>
+        </section> 
 
         <div style={adminStyles.dashboardGrid}>
           <section
@@ -585,19 +880,49 @@ export default function AdminPage({
 		    <div style={adminStyles.postMetrics}>
                       <div style={adminStyles.postMetric}>
                         <p style={adminStyles.postMetricLabel}>
-                          Views
+                          Unique readers
                         </p>
+
                         <p style={adminStyles.postMetricValue}>
-                          {Number(post.views || 0)}
+                          {loadingAnalytics
+                            ? "—"
+                            : getPostAnalytics(post.id).uniqueReaders}
                         </p>
                       </div>
 
                       <div style={adminStyles.postMetric}>
                         <p style={adminStyles.postMetricLabel}>
-                          On-site opens
+                          Visits
                         </p>
+
                         <p style={adminStyles.postMetricValue}>
-                          {Number(post.readClicks || 0)}
+                          {loadingAnalytics
+                            ? "—"
+                            : getPostAnalytics(post.id).visits}
+                        </p>
+                      </div>
+
+                      <div style={adminStyles.postMetric}>
+                        <p style={adminStyles.postMetricLabel}>
+                          Halfway
+                        </p>
+
+                        <p style={adminStyles.postMetricValue}>
+                          {loadingAnalytics
+                            ? "—"
+                            : `${getPostAnalytics(post.id).halfwayRate}%`}
+                        </p>
+                      </div>
+
+                      <div style={adminStyles.postMetric}>
+                        <p style={adminStyles.postMetricLabel}>
+                          Completed
+                        </p>
+
+                        <p style={adminStyles.postMetricValue}>
+                          {loadingAnalytics
+                            ? "—"
+                            : `${getPostAnalytics(post.id).completionRate}%`}
                         </p>
                       </div>
 
@@ -605,8 +930,11 @@ export default function AdminPage({
                         <p style={adminStyles.postMetricLabel}>
                           Shares
                         </p>
+
                         <p style={adminStyles.postMetricValue}>
-                          {Number(post.shares || 0)}
+                          {loadingAnalytics
+                            ? "—"
+                            : getPostAnalytics(post.id).shares}
                         </p>
                       </div>
                     </div>

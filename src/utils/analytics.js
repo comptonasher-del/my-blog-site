@@ -30,6 +30,29 @@ export function createArticleSessionId() {
   return crypto.randomUUID();
 }
 
+export function storeArticleSessionId(
+  postId,
+  sessionId
+) {
+  window.sessionStorage.setItem(
+    `fotn_article_session_${postId}`,
+    sessionId
+  );
+}
+
+export function consumeArticleSessionId(postId) {
+  const key = `fotn_article_session_${postId}`;
+
+  const storedSessionId =
+    window.sessionStorage.getItem(key);
+
+  window.sessionStorage.removeItem(key);
+
+  return isValidUuid(storedSessionId)
+    ? storedSessionId
+    : null;
+}
+
 export async function trackArticleEvent({
   postId,
   sessionId,

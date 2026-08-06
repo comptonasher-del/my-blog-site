@@ -2,6 +2,12 @@ import { useState } from "react";
 import styles from "../styles/styles";
 import { getReadingTime } from "../utils/readingTime";
 
+import {
+  createArticleSessionId,
+  storeArticleSessionId,
+  trackArticleEvent,
+} from "../utils/analytics";
+
 export function FeaturedArticle({
   post,
   isAdmin,
@@ -12,9 +18,23 @@ export function FeaturedArticle({
 
   const isLongTitle = post.title.length > 55;
   const readTime = getReadingTime(post.body);
+   
   async function openPost() {
-    await incrementPostMetric(post.id, "read_clicks");
-    window.location.href = `/post/${post.slug || post.id}`;
+    const sessionId = createArticleSessionId();
+
+    storeArticleSessionId(post.id, sessionId);
+
+    await Promise.all([
+      incrementPostMetric(post.id, "read_clicks"),
+      trackArticleEvent({
+        postId: post.id,
+        sessionId,
+        eventType: "on_site_open",
+      }),
+    ]);
+
+    window.location.href =
+      `/post/${post.slug || post.id}`;
   }
   return (
     <article
@@ -86,8 +106,21 @@ export function ArticleCard({
   const readTime = getReadingTime(post.body);
 
   async function openPost() {
-    await incrementPostMetric(post.id, "read_clicks");
-    window.location.href = `/post/${post.slug || post.id}`;
+    const sessionId = createArticleSessionId();
+
+    storeArticleSessionId(post.id, sessionId);
+  
+    await Promise.all([
+      incrementPostMetric(post.id, "read_clicks"),
+      trackArticleEvent({
+        postId: post.id,
+        sessionId,
+        eventType: "on_site_open",
+      }),
+    ]);
+
+    window.location.href =
+      `/post/${post.slug || post.id}`;
   }
 
   return (
@@ -98,10 +131,7 @@ export function ArticleCard({
       style={hovered ? styles.cardHover : styles.card}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => {
-        incrementPostMetric(post.id, "read_clicks");
-        window.location.href = `/post/${post.slug || post.id}`;
-      }}
+      onClick={openPost}
     >
       {post.image && (
         <img
