@@ -370,6 +370,8 @@ export default function AdminPage({
     useState(true);
   const [analyticsRange, setAnalyticsRange] =
     useState("30");
+  const [articleSort, setArticleSort] =
+    useState("newest");
 
   useEffect(() => {
     if (!session) {
@@ -582,6 +584,64 @@ export default function AdminPage({
       ).length,
     };
   }
+
+  const sortedPosts = useMemo(() => {
+    const newestFirst = (firstPost, secondPost) => {
+      const firstDate = new Date(
+        firstPost.date || 0
+      ).getTime();
+
+      const secondDate = new Date(
+        secondPost.date || 0
+      ).getTime();
+
+      return secondDate - firstDate;
+    };
+
+    return [...posts].sort((firstPost, secondPost) => {
+      const firstAnalytics =
+        getPostAnalytics(firstPost.id);
+
+      const secondAnalytics =
+        getPostAnalytics(secondPost.id);
+
+      let difference = 0;
+
+      if (articleSort === "visits") {
+        difference =
+          secondAnalytics.visits -
+          firstAnalytics.visits;
+      }
+
+      if (articleSort === "readers") {
+        difference =
+          secondAnalytics.uniqueReaders -
+          firstAnalytics.uniqueReaders;
+      }
+
+      if (articleSort === "completion") {
+        difference =
+          secondAnalytics.completionRate -
+          firstAnalytics.completionRate;
+      }
+
+      if (articleSort === "shares") {
+        difference =
+          secondAnalytics.shares -
+          firstAnalytics.shares;
+      }
+
+      if (articleSort === "newest" || difference === 0) {
+        return newestFirst(firstPost, secondPost);
+      }
+
+      return difference;
+    });
+  }, [
+    posts,
+    filteredArticleEvents,
+    articleSort,
+  ]);
 
   function confirmDelete(post) {
     const confirmed = window.confirm(
@@ -843,14 +903,62 @@ export default function AdminPage({
               <h2 style={adminStyles.panelTitle}>
                 Manage articles
               </h2>
+    
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "10px",
+                   }}
+                >
+                   <label
+                     style={{
+                       display: "flex",
+                       alignItems: "center",
+                       gap: "8px",
+                       color: "#6b6258",
+                       fontSize: "12px",
+                       fontWeight: 600,
+                     }}
+                   >
+                     Sort by
 
-              <button
-                type="button"
-                style={styles.primaryButton}
-                onClick={startNewPost}
-              >
-                + New article
-              </button>
+                     <select
+                       value={articleSort}
+                       onChange={(event) =>
+                         setArticleSort(event.target.value)
+                       }
+                       style={{
+                         border: "1px solid #d8d0c5",
+                         padding: "10px 32px 10px 12px",
+                         background: "#fffaf3",
+                         color: "#18212f",
+                         font: "inherit",
+                         cursor: "pointer",
+                       }}
+                     >
+                       <option value="newest">Newest</option>
+                       <option value="visits">Most visits</option>
+                       <option value="readers">
+                         Most unique readers
+                       </option>
+                       <option value="completion">
+                         Highest completion
+                       </option>
+                       <option value="shares">Most shares</option>
+                     </select>
+                   </label>
+
+                   <button
+                     type="button"
+                     style={styles.primaryButton}
+                     onClick={startNewPost}
+                   >
+                     + New article
+                   </button>
+            </div>
+               
             </div>
 
             {loadingPosts ? (
@@ -863,7 +971,7 @@ export default function AdminPage({
               </p>
             ) : (
               <div style={adminStyles.postsList}>
-                {posts.map((post) => (
+                {sortedPosts.map((post) => (
                   <div key={post.id} style={adminStyles.postRow}>
                     <div style={adminStyles.postInfo}>
                       <h3 style={adminStyles.postTitle}>

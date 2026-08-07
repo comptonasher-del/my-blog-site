@@ -167,6 +167,11 @@ export default function PostEditorModal({
 
   const hasValidCategory =
     CONTENT_CATEGORIES.includes(draft.type);
+  
+  const [
+    mobileDetailsOpen,
+    setMobileDetailsOpen,
+  ] = useState(false);
 
   const [importingDocument, setImportingDocument] =
     useState(false);
@@ -292,6 +297,19 @@ export default function PostEditorModal({
           </div>
 
           <div className="admin-editor-actions">
+
+            <button
+              type="button"
+              className="admin-editor-button admin-editor-button-secondary admin-editor-details-button"
+              onClick={() =>
+                setMobileDetailsOpen((isOpen) => !isOpen)
+              }
+            >
+              {mobileDetailsOpen
+                ? "Back to article"
+                : "Details"}
+            </button>
+
             <button
               type="button"
               className="admin-editor-button admin-editor-button-secondary"
@@ -457,7 +475,13 @@ export default function PostEditorModal({
             </section>
           </main>
 
-          <aside className="admin-editor-sidebar">
+          <aside
+            className={`admin-editor-sidebar ${
+              mobileDetailsOpen
+                ? "admin-editor-sidebar-open"
+                : ""
+            }`}
+          >
             <section className="admin-editor-card">
               <h2 className="admin-editor-section-title">
                 Publication

@@ -681,15 +681,20 @@ useEffect(() => {
     );
   }
 
-  if (isPostPage) {
-    if (loadingPosts) {
-      return (
-        <div style={styles.page}>
-          <div style={styles.card}>Loading post...</div>
-        </div>
-      );
-    }
+  if (loadingPosts) {
+    return (
+      <div
+        role="status"
+        aria-label="Loading website"
+        style={{
+          minHeight: "100vh",
+          background: "#f7f4ef",
+        }}
+      />
+    );
+  }
 
+  if (isPostPage) {   
     if (!selectedPost) {
       return (
         <div style={styles.page}>

@@ -115,6 +115,15 @@ function openCategory(category) {
 
   setCurrentView("home");
   setActiveCategory(category);
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  });  
+
 }
 
 function openAboutPage() {

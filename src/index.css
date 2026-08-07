@@ -789,23 +789,67 @@ body {
   font-style: italic;
 }
 
+ .admin-editor-details-button {
+   display: none;
+ }
+ 
  @media (max-width: 900px) {
   .admin-editor-workspace {
     grid-template-columns: 1fr;
   }
 
-  .admin-editor-sidebar {
-    position: static;
-    max-height: none;
-    padding-right: 0;
-    overflow: visible;
+  .admin-editor-header {
+    padding: 0 16px;
   }
-}
+
+  .admin-editor-header-copy {
+    display: none;
+  }
+
+  .admin-editor-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .admin-editor-details-button {
+    display: inline-flex;
+    margin-right: auto;  
+  }
+
+  .admin-editor-sidebar {
+    display: none;
+  }
+
+  .admin-editor-sidebar.admin-editor-sidebar-open {
+    position: fixed;
+    top: 76px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 19;
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    max-height: none;
+    padding: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    background: #f3f1ec;
+    box-sizing: border-box;
+  }
+} 
 
 @media (max-width: 600px) {
   .admin-editor-header {
     min-height: 68px;
     padding: 0 16px;
+  }
+
+  .admin-editor-sidebar.admin-editor-sidebar-open {
+    top: 68px;
+    padding: 12px;
   }
 
   .admin-editor-heading {
