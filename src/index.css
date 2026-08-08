@@ -942,3 +942,11 @@ body {
   opacity: 0.65;
   pointer-events: none;
 }
+
+@media (max-width: 600px) {
+  .admin-post-metrics {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

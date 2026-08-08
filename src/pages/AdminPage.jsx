@@ -985,7 +985,10 @@ export default function AdminPage({
                       </p>
                     </div>
 
-		    <div style={adminStyles.postMetrics}>
+                    <div
+                      className="admin-post-metrics"
+                      style={adminStyles.postMetrics}
+                    >		    
                       <div style={adminStyles.postMetric}>
                         <p style={adminStyles.postMetricLabel}>
                           Unique readers
